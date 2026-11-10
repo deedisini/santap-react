@@ -1,0 +1,39 @@
+@startuml SANTAP_ACTIVITY_MEAL_SERVICE
+title UC-04 Proses Pengambilan Makanan
+|Staff|
+start
+:Pilih scan QR atau input NIM;
+if (QR digunakan?) then (ya)
+  :Pindai QR;
+else (tidak/gagal)
+  :Masukkan NIM manual;
+endif
+|Sistem|
+:Cari profil mahasiswa;
+if (Profil lengkap dan NIM valid?) then (ya)
+  :Periksa periode aktif;
+  if (Periode aktif?) then (ya)
+    :Periksa pengambilan ganda;
+    if (Sudah mengambil?) then (ya)
+      :Tolak dan tampilkan alasan;
+    else (tidak)
+      |Staff|
+      :Konfirmasi pemberian makanan;
+      |Sistem|
+      :Simpan catatan pengambilan;
+      fork
+        :Buat token verifikasi;
+      fork again
+        :Perbarui antrean menjadi completed bila ada;
+      end fork
+      :Tampilkan hasil berhasil;
+    endif
+  else (tidak)
+    :Tolak karena periode tidak aktif;
+  endif
+else (tidak)
+  :Tolak dan arahkan pelengkapan profil;
+endif
+|Staff|
+stop
+@enduml

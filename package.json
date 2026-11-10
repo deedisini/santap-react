@@ -1,0 +1,28 @@
+{
+  "name": "santap-react-prototype",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "email-server": "node --env-file=.env.local server/emailServer.js",
+    "sql-server": "node --env-file=.env.local server/sqlServer.js",
+    "bootstrap-admin": "node --env-file=.env.local server/bootstrapAdmin.js",
+    "test": "node --test server/*.test.js"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "latest",
+    "@zxing/browser": "^0.2.1",
+    "firebase": "^12.19.0",
+    "firebase-admin": "^14.5.0",
+    "lucide-react": "^1.66.0",
+    "mysql2": "^3.24.6",
+    "nodemailer": "^7.0.11",
+    "qrcode.react": "^4.2.0",
+    "react": "latest",
+    "react-dom": "latest",
+    "vite": "latest"
+  }
+}
