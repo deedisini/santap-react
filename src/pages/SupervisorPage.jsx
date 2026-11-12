@@ -10,6 +10,7 @@ import {
 
 import StatCard from "../components/StatCard";
 import EmailReportPanel from "../components/EmailReportPanel";
+import { todayKey } from '../utils/format.js';
 
 export default function SupervisorPage({
   user,
@@ -25,14 +26,15 @@ export default function SupervisorPage({
   reminder,
   setReminder,
 }) {
+  const currentDate = todayKey();
   const studentByNim = useMemo(
     () => new Map(students.map((student) => [student.nim, student])),
     [students]
   );
 
   const periodRecords = useMemo(
-    () => records.filter((record) => record.period === period),
-    [records, period]
+    () => records.filter((record) => record.period === period && record.date === currentDate),
+    [records, period, currentDate]
   );
 
   const residents = useMemo(
@@ -57,22 +59,17 @@ export default function SupervisorPage({
   );
 
   const weeklyRows = useMemo(() => {
-    const today = new Date();
+    const today = new Date(`${todayKey()}T12:00:00+08:00`);
 
     const dateKey = (date) => {
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, "0");
-      const day = String(date.getDate()).padStart(2, "0");
-
-      return `${year}-${month}-${day}`;
+      return todayKey(date);
     };
 
     return Array.from({ length: 7 }, (_, index) => {
       const daysAgo = 6 - index;
       const date = new Date(today);
 
-      date.setHours(0, 0, 0, 0);
-      date.setDate(date.getDate() - daysAgo);
+      date.setTime(today.getTime() - daysAgo * 86400000);
 
       const key = dateKey(date);
 
@@ -105,10 +102,12 @@ export default function SupervisorPage({
         key,
         label: date.toLocaleDateString("id-ID", {
           weekday: "short",
+          timeZone: 'Asia/Makassar',
         }),
         date: date.toLocaleDateString("id-ID", {
           day: "2-digit",
           month: "short",
+          timeZone: 'Asia/Makassar',
         }),
         morning,
         afternoon,
@@ -116,7 +115,7 @@ export default function SupervisorPage({
         total: morning + afternoon + evening,
       };
     });
-  }, [demoHistory, records]);
+  }, [demoHistory, records, currentDate]);
 
   const weeklyTotals = useMemo(
     () =>

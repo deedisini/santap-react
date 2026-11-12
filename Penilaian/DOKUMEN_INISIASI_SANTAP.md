@@ -2,6 +2,8 @@
 
 ## 1.1 Nama sistem, masalah, tujuan, dan manfaat
 
+Pembaruan 12 November 2026: pemilik proyek telah menyampaikan jadwal resmi Asia/Makassar, termasuk perbedaan makan malam Jumat–Sabtu. Rincian, reminder push, dan tema Sabat opsional dicatat pada [usulan SRS v1.2](./SANTAP_SRS_V1_2_PROPOSED.md). Penyampaian jadwal ini tidak menggantikan bukti persetujuan formal dosen/pengelola yang masih harus dilampirkan. Tema Sabat terpisah dari hak makan dan jadwal layanan; sesuai instruksi pemilik proyek, default berlangsung setiap Jumat pukul 18.00 sampai Sabtu pukul 18.00 WITA tanpa ketergantungan data matahari terbenam.
+
 **SANTAP** adalah Sistem Antrean dan Pencatatan Aktivitas Pengambilan makanan di Fern Wallace Dining Hall, Universitas Klabat. Sistem ini berfokus pada identifikasi mahasiswa, pengaturan antrean, validasi pengambilan makanan, dan pemantauan operasional per periode makan.
 
 ### Latar belakang masalah
@@ -27,7 +29,18 @@ Pelayanan Dining Hall membutuhkan proses yang cepat dan dapat ditelusuri pada wa
 
 ## 1.2 Objek nyata dan kelayakan proyek
 
-Objek proyek adalah **layanan pengambilan makanan mahasiswa di Fern Wallace Dining Hall**. Objek ini nyata karena melibatkan mahasiswa, petugas, jadwal makan, antrean, dan catatan pengambilan yang terjadi setiap hari. Fokus SANTAP dibedakan dari sistem kantin atau kasir: tidak menangani pembayaran, menu, stok bahan, resep, procurement, atau keuangan dapur. Persetujuan masalah, prioritas fitur, dan akses narasumber perlu dikonfirmasi kepada dosen serta pengelola Dining Hall sebelum kebutuhan dibekukan.
+Objek proyek adalah **layanan pengambilan makanan mahasiswa di Fern Wallace Dining Hall**. Objek ini nyata karena melibatkan mahasiswa, petugas, jadwal makan, antrean, dan catatan pengambilan yang terjadi setiap hari. Fokus SANTAP dibedakan dari sistem kantin atau kasir: tidak menangani pembayaran, menu, stok bahan, resep, procurement, atau keuangan dapur.
+
+### Validasi objek dan persetujuan
+
+| Hal yang divalidasi | Bukti/rujukan | Status |
+|---|---|---|
+| Objek dan masalah layanan | Kondisi as-is pada bagian 1.4; bukti kebutuhan pada `ELISITASI_SRS_SANTAP.md` | Terdokumentasi |
+| Perbedaan dari proyek lain | Batasan *out of scope* pada bagian 1.5 | Terdokumentasi |
+| Persetujuan dosen | Catat tanggal, media persetujuan, dan nama dosen pada tabel persetujuan di akhir dokumen setelah diterima | Menunggu bukti formal |
+| Konfirmasi pengelola Dining Hall | Catat nama, jabatan, tanggal, dan keputusan atas aturan layanan | Menunggu bukti formal |
+
+Status "menunggu bukti formal" sengaja dipertahankan agar dokumen tidak mengklaim persetujuan yang belum dapat dibuktikan.
 
 ## 1.3 Stakeholder dan calon pengguna
 
@@ -148,8 +161,23 @@ Model yang dipilih adalah **Agile Iterative Incremental**. Setiap iterasi mengha
 | Pengembang data/backend | Menjaga Firebase, skema MySQL, SQL API, validasi data, serta seed demo. |
 | QA dan dokumentasi | Menyusun kasus uji, menguji alur, mencatat temuan, serta menyiapkan demo/presentasi. |
 
+### Penugasan anggota dan bukti kontribusi
+
+| Anggota | Peran | Luaran yang dibuktikan | Status |
+|---|---|---|---|
+| *Isi nama anggota 1* | Koordinator/analis | `DOKUMEN_INISIASI_SANTAP.md`, backlog/keputusan | Diisi tim |
+| *Isi nama anggota 2* | Analis proses dan UI | SRS, use case, activity diagram | Diisi tim |
+| *Isi nama anggota 3* | Pengembang frontend | `src/` dan bukti uji antarmuka | Diisi tim |
+| *Isi nama anggota 4* | Pengembang data/backend | `server/`, Firebase, dan skema SQL | Diisi tim |
+| *Isi nama anggota 5* | QA dan dokumentasi | kasus uji, temuan, dan materi demo | Diisi tim |
+
 Ruang kerja bersama menggunakan repository proyek `santap-react` sebagai sumber kode dan dokumentasi. Struktur minimum yang dipakai adalah `src/` untuk aplikasi React, `server/` untuk API dan SQL, `tools/` untuk utilitas, serta dokumen `.md`, `.puml`, dan `.docx` di akar proyek. Setiap perubahan kebutuhan dicatat pada backlog atau issue agar keputusan kelompok dapat ditelusuri.
 
 ## Persetujuan dan tindak lanjut
 
 Sebelum iterasi pembangunan berikutnya, tim perlu memperoleh konfirmasi dosen/pengelola untuk: aturan kelayakan makan, perbedaan layanan penghuni dan non-penghuni, jadwal periode makan, pengecualian layanan, perangkat yang tersedia, serta penanggung jawab data mahasiswa.
+
+| Pihak | Nama | Media/tanggal persetujuan | Keputusan atau catatan |
+|---|---|---|---|
+| Dosen pengampu | *Isi setelah dikonfirmasi* | *Isi setelah dikonfirmasi* | *Isi setelah dikonfirmasi* |
+| Pengelola Dining Hall | *Isi setelah dikonfirmasi* | *Isi setelah dikonfirmasi* | *Isi setelah dikonfirmasi* |

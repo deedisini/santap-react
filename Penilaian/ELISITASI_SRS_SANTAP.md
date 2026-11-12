@@ -4,14 +4,17 @@ Dokumen ini melengkapi Penilaian 2 dan Penilaian 3 untuk SANTAP. Bukti elisitasi
 
 ## 2.1 Bukti dua teknik elisitasi
 
+Pembaruan operasional dan penelusuran ID historis tersedia pada [usulan SRS v1.2](./SANTAP_SRS_V1_2_PROPOSED.md). Penomoran FR dalam dokumen ini dipertahankan sebagai namespace ELIS dan tidak mengganti ID v1.1.
+
 | Teknik | Narasumber representatif | Bukti | Status |
 |---|---|---|---|
 | Wawancara semi-terstruktur | Rafael Soriton, mahasiswa Asrama Crystal | User story US-01 dan kebutuhan QR, barcode, serta NIM manual pada KINTARA SRS v1.0 | Terdokumentasi |
 | Wawancara semi-terstruktur | Mrs. Mega Mawu, Supervisor Dining Hall | User story US-02 dan kebutuhan monitoring/reminder pada KINTARA SRS v1.0 | Terdokumentasi |
 | Wawancara semi-terstruktur | Julian Tendean, mahasiswa Asrama Crystal | User story US-03 dan kebutuhan antrean pada KINTARA SRS v1.0 | Terdokumentasi |
-| Observasi proses layanan | Staff Dining Hall dan mahasiswa saat periode makan | Catatan alur, tanggal/lokasi, dan foto tanpa data pribadi | Masih perlu jika dosen menuntut dua teknik berbeda |
+| Wawancara semi-terstruktur | Mrs. Jangs Laoh, Kepala Dining Hall | Kepala membutuhkan gabungan kemampuan Supervisor dan Staff, serta meminta fitur rating mahasiswa. | Terdokumentasi |
+| Analisis dokumen kebutuhan terdahulu | Tiga narasumber representatif yang tercatat pada KINTARA SRS v1.0 | Telaah user story, acceptance criteria, batasan, dan kebutuhan pada KINTARA SRS v1.0; hasil telaah ditautkan ke Q1-Q10, FR, NFR, dan BR di dokumen ini | Terdokumentasi |
 
-> Tiga wawancara di atas adalah bukti nyata. Namun semuanya memakai teknik yang sama. Jika dosen menafsirkan “minimal dua teknik” sebagai dua jenis teknik berbeda, tim perlu melengkapi observasi atau kuesioner singkat.
+> Dua teknik yang digunakan adalah wawancara semi-terstruktur dan analisis dokumen kebutuhan terdahulu. Analisis dokumen tidak menggantikan wawancara; teknik ini dipakai untuk menelusuri dan memvalidasi kebutuhan yang telah direkam dalam KINTARA SRS v1.0. Bila dosen mensyaratkan dua teknik lapangan yang berbeda, lakukan observasi atau kuesioner dan lampirkan bukti kegiatan sebenarnya.
 
 ## 2.2 Instrumen wawancara dan dokumentasi jawaban
 
@@ -19,7 +22,7 @@ Dokumen ini melengkapi Penilaian 2 dan Penilaian 3 untuk SANTAP. Bukti elisitasi
 
 - Teknik: Wawancara semi-terstruktur
 - Dokumen sumber: KINTARA SRS versi 1.0
-- Narasumber: Rafael Soriton (Mahasiswa), Mrs. Mega Mawu (Supervisor Dining Hall), Julian Tendean (Mahasiswa)
+- Narasumber: Rafael Soriton (Mahasiswa), Mrs. Mega Mawu (Supervisor Dining Hall), Julian Tendean (Mahasiswa), dan Mrs. Jangs Laoh (Kepala Dining Hall)
 - Tanggal/waktu wawancara dan nama pewawancara: belum tertulis pada artefak sumber; tambahkan bila catatan asli tersedia.
 - Bentuk jawaban berikut: parafrasa kebutuhan dari user story dan requirement, bukan kutipan kata-per-kata.
 
@@ -35,6 +38,8 @@ Dokumen ini melengkapi Penilaian 2 dan Penilaian 3 untuk SANTAP. Bukti elisitasi
 | 8 | Apa yang harus diperiksa sebelum pencatatan pengambilan? | Identitas, status pengguna, periode aktif, dan riwayat pengambilan perlu diperiksa. | KINTARA SRS v1.0, UC-04; dasar FR-08 sampai FR-10. |
 | 9 | Apa tindakan sistem jika mahasiswa telah mengambil pada periode yang sama? | Sistem harus menolak pencatatan kedua untuk mencegah pengambilan ganda. | KINTARA SRS v1.0, FR-14 dan AC-06; dasar FR-10 dan BR-04. |
 | 10 | Mengapa proses utama perlu ringkas? | Jaringan kampus dapat lambat; proses identifikasi dan pencatatan harus sederhana serta efisien. | KINTARA SRS v1.0, batasan sistem; dasar NFR-01 sampai NFR-03. |
+| 11 | Kemampuan apa yang dibutuhkan Kepala Dining Hall? | Kepala membutuhkan gabungan kemampuan operasional Staff dan pemantauan Supervisor agar dapat menangani layanan maupun mengawasi operasi. | Mrs. Jangs Laoh; dasar FR-17 dan UC-04/UC-05. |
+| 12 | Fitur tambahan apa yang dibutuhkan Kepala? | Kepala meminta fitur rating mahasiswa terhadap pengalaman makan. Mahasiswa memilih nilai 1–5 dan dapat menambahkan saran opsional. | Mrs. Jangs Laoh; dasar FR-18 dan UC-07. |
 
 ## Keputusan perubahan KINTARA menjadi SANTAP
 
@@ -43,29 +48,32 @@ Dokumen ini melengkapi Penilaian 2 dan Penilaian 3 untuk SANTAP. Bukti elisitasi
 | Nama sistem KINTARA | Diubah menjadi SANTAP | Nama proyek versi lanjutan. |
 | Informasi menu | Dikeluarkan dari scope | Bukan prioritas operasional pada versi SANTAP saat ini. |
 | Mahasiswa, Staff, Supervisor | Dipertahankan | Tetap merupakan aktor inti hasil elisitasi. |
-| Head dan Admin | Ditambahkan | Mendukung pengawasan dan kelengkapan profil/role. |
+| Head | Ditambahkan dan divalidasi melalui wawancara Mrs. Jangs Laoh | Memiliki kemampuan gabungan Supervisor dan Staff serta menerima masukan rating mahasiswa. |
+| Admin | Ditambahkan | Mendukung kelengkapan profil/role. |
 | QR, barcode/NIM manual, validasi, antrean, monitoring, reminder | Dipertahankan/disempurnakan | Konsisten dengan kebutuhan yang terdokumentasi. |
 
 ## 2.3 Kebutuhan fungsional dan prioritas MoSCoW
 
 | ID | Kebutuhan yang dapat diuji | Sumber elisitasi | Prioritas |
 |---|---|---|---|
-| FR-01 | Sistem harus mengautentikasi pengguna sebelum membuka dashboard. | Q1, Q9 | Must |
-| FR-02 | Sistem harus menampilkan dashboard sesuai role Mahasiswa, Staff, Supervisor, Head, atau Admin. | Q8, Q9 | Must |
-| FR-03 | Sistem harus menyimpan profil mahasiswa dengan NIM, nama, email, fakultas, dan status asrama. | Q3, Q5, Q9 | Must |
-| FR-04 | Admin harus dapat membuat atau memperbarui profil mahasiswa, termasuk status penghuni/non-penghuni. | Q5, Q9 | Must |
-| FR-05 | Mahasiswa harus dapat menampilkan QR identitas setelah login. | Q1, Q6 | Should |
-| FR-06 | Staff harus dapat mengidentifikasi mahasiswa melalui QR/kamera. | Q1, Q6 | Must |
-| FR-07 | Staff harus dapat memasukkan NIM secara manual jika pemindaian tidak tersedia atau gagal. | Q6, Q7 | Must |
-| FR-08 | Sistem harus menolak pengambilan jika NIM tidak terdaftar atau profil tidak lengkap. | Q3, Q9 | Must |
-| FR-09 | Sistem harus menolak pengambilan jika periode makan tidak aktif. | Q10 | Must |
-| FR-10 | Sistem harus mencegah pengambilan kedua oleh mahasiswa yang sama pada periode dan tanggal yang sama. | Q4 | Must |
-| FR-11 | Sistem harus menyimpan catatan pengambilan yang memuat mahasiswa, periode, waktu, dan petugas. | Q3, Q8 | Must |
-| FR-12 | Sistem harus menambahkan mahasiswa ke antrean dan menampilkan antrean aktif kepada staff. | Q2 | Should |
-| FR-13 | Staff harus dapat mengubah status antrean menjadi selesai atau dibatalkan. | Q1, Q2 | Should |
-| FR-14 | Supervisor/Head harus dapat melihat jumlah pengambilan per periode dan status asrama. | Q8 | Should |
-| FR-15 | Sistem harus menyimpan hasil scan secara lokal sementara saat koneksi putus dan menyinkronkannya setelah koneksi kembali. | Q7 | Could |
-| FR-16 | Sistem dapat mengirim pengingat sebelum periode makan ditutup. | Q8, Q10 | Could |
+| FR-01 | Sistem harus mengautentikasi pengguna sebelum membuka dashboard. | KINTARA FR-01/UC-01 | Must |
+| FR-02 | Sistem harus menampilkan dashboard sesuai role Mahasiswa, Staff, Supervisor, Head, atau Admin. | KINTARA FR-02; Q11; perluasan Admin | Must |
+| FR-03 | Sistem harus menyimpan profil mahasiswa dengan NIM, nama, email, fakultas, dan status asrama. | Q6, Q8; rancangan data profil | Must |
+| FR-04 | Admin harus dapat membuat atau memperbarui profil mahasiswa, termasuk status penghuni/non-penghuni. | Q6; alokasi pengelolaan profil kepada Admin | Must |
+| FR-05 | Mahasiswa harus dapat menampilkan QR identitas setelah login. | Q1 | Should |
+| FR-06 | Staff harus dapat mengidentifikasi mahasiswa melalui QR atau barcode dengan kamera. | Q1; KINTARA FR-07/FR-08 | Must |
+| FR-07 | Staff harus dapat memasukkan NIM secara manual jika pemindaian tidak tersedia atau gagal. | Q1, Q2 | Must |
+| FR-08 | Sistem harus menolak pengambilan jika NIM tidak terdaftar atau profil tidak lengkap. | Q8 | Must |
+| FR-09 | Sistem harus menolak pengambilan jika periode makan tidak aktif. | Q8; jadwal resmi pada usulan v1.2 | Must |
+| FR-10 | Sistem harus mencegah pengambilan kedua oleh mahasiswa yang sama pada periode dan tanggal yang sama. | Q9 | Must |
+| FR-11 | Sistem harus menyimpan catatan pengambilan yang memuat mahasiswa, periode, waktu, dan petugas. | Q8; KINTARA FR-15 | Must |
+| FR-12 | Sistem harus menambahkan mahasiswa ke antrean dan menampilkan antrean aktif kepada staff. | Q3, Q4 | Should |
+| FR-13 | Staff harus dapat mengubah status antrean menjadi selesai atau dibatalkan. | Q4; pembatalan sebagai penyempurnaan rancangan | Should |
+| FR-14 | Supervisor/Head harus dapat melihat jumlah pengambilan per periode dan status asrama. | Q5, Q6, Q11 | Should |
+| FR-15 | Sistem harus menyimpan hasil scan secara lokal sementara saat koneksi putus dan menyinkronkannya setelah koneksi kembali. | Q2, Q10; mitigasi rancangan jaringan | Could |
+| FR-16 | Sistem harus menyediakan pengingat push 10 menit sebelum periode makan ditutup beserta fallback dalam aplikasi. | Q7; permintaan perubahan v1.2 | Must |
+| FR-17 | Head harus dapat mengakses kemampuan operasional Staff dan monitoring Supervisor sesuai hak aksesnya. | Q11 | Must |
+| FR-18 | Mahasiswa harus dapat mengirim rating pengalaman makan bernilai 1 sampai 5 beserta saran opsional kepada pengelola Dining Hall. | Q12 | Should |
 
 **Tidak dikerjakan pada iterasi saat ini (Won't):** pembayaran, pengelolaan menu, stok bahan, procurement, resep, keuangan dapur, aplikasi mobile native, prediksi waktu antrean, dan integrasi penuh ERP/akademik.
 
@@ -93,7 +101,7 @@ Prioritas Must mencakup proses layanan yang tidak boleh gagal: autentikasi, prof
 
 | ID | Aturan bisnis |
 |---|---|
-| BR-01 | Dining Hall memiliki tiga periode: Pagi 05.30-07.00, Siang 11.30-13.30, dan Malam 17.30-19.00. |
+| BR-01 | Semua waktu Asia/Makassar: Pagi setiap hari 05.30–08.00; Siang setiap hari 11.30–13.00; Malam Minggu–Kamis 17.00–18.30 dan Jumat–Sabtu 16.30–18.00. Jadwal resmi disampaikan pemilik proyek; lihat usulan SRS v1.2 untuk kriteria penerimaan. |
 | BR-02 | Setiap mahasiswa harus memiliki NIM unik dan status asrama sebelum dapat dilayani. |
 | BR-03 | Pengambilan hanya dapat dilakukan pada periode yang berstatus aktif. |
 | BR-04 | Seorang mahasiswa hanya boleh memiliki satu catatan pengambilan untuk periode yang sama pada tanggal yang sama. |
@@ -102,6 +110,8 @@ Prioritas Must mencakup proses layanan yang tidak boleh gagal: autentikasi, prof
 | BR-07 | Catatan pengambilan harus menyimpan identitas petugas yang memvalidasi. |
 | BR-08 | Antrean berstatus waiting, completed, atau cancelled. |
 | BR-09 | Data yang tersimpan lokal saat offline harus ditandai belum tersinkron dan tidak boleh dianggap catatan final sebelum unggahan berhasil. |
+| BR-10 | Head memiliki akses ke fitur monitoring dan pelayanan Staff, tetapi tidak dapat mengelola akun Admin. |
+| BR-11 | Rating pengalaman makan wajib bernilai bilangan bulat 1 sampai 5; saran bersifat opsional dan panjangnya maksimal 5.000 karakter. |
 
 ## 2.8 SRS bagian 1 sampai 3
 
@@ -132,7 +142,9 @@ Proses membutuhkan verifikasi identitas, pemeriksaan hak/status mahasiswa, dan p
 
 ## 2.10 Sheet kebutuhan untuk Lembar Kerja Proyek
 
-Salin tabel FR dan NFR di atas ke sheet kebutuhan dengan kolom minimal: `ID`, `Jenis`, `Pernyataan kebutuhan`, `Sumber`, `Prioritas MoSCoW`, `Kriteria uji`, `Status`, dan `Catatan`.
+Workbook yang sudah ada merupakan snapshot kebutuhan sebelum revisi v1.2. Koreksi sumber Q pada tabel 2.3 dan matriks v1.2 menjadi acuan revisi berikutnya; jangan menganggap snapshot tersebut sebagai bukti penerimaan fitur baru.
+
+Seluruh FR dan NFR telah dicatat pada `LEMBAR_KERJA_KEBUTUHAN_SANTAP.xlsx`. Sheet tersebut menyediakan kolom `ID`, `Jenis`, `Pernyataan kebutuhan`, `Sumber`, `Prioritas MoSCoW`, `Kriteria uji`, `Status`, dan `Catatan`; setiap baris memiliki sumber serta kriteria uji yang dapat diperiksa.
 
 ## 3.1 sampai 3.9 Checklist pemodelan perilaku
 
@@ -194,6 +206,14 @@ Salin tabel FR dan NFR di atas ke sheet kebutuhan dengan kolom minimal: `ID`, `J
 - Alur utama: admin memasukkan NIM dan data profil; admin memilih status asrama; sistem memvalidasi kelengkapan; sistem menyimpan perubahan.
 - Alternatif: NIM duplikat atau email tidak valid; sistem menolak dan meminta perbaikan.
 
+### UC-07 Kirim Rating dan Saran
+
+- Aktor: Mahasiswa.
+- Prakondisi: mahasiswa sudah login dan periode makan tersedia.
+- Pascakondisi: rating 1–5 serta saran opsional terkirim kepada pengelola Dining Hall.
+- Alur utama: mahasiswa membuka panel masukan; mahasiswa memilih rating; mahasiswa dapat menulis saran; sistem memvalidasi nilai dan periode; sistem mengirim masukan bersama identitas mahasiswa kepada pengelola.
+- Alternatif: rating di luar rentang 1–5 atau periode belum tersedia; sistem menolak pengiriman dan menampilkan alasan.
+
 ## 3.8 Matriks keterlacakan
 
 | Kebutuhan | Use case | Activity diagram |
@@ -204,4 +224,9 @@ Salin tabel FR dan NFR di atas ke sheet kebutuhan dengan kolom minimal: `ID`, `J
 | FR-06 sampai FR-11 | UC-04 Proses Pengambilan Makanan | `SANTAP_ACTIVITY_MEAL_SERVICE.puml` |
 | FR-12, FR-13 | UC-03 Masuk Antrean | `SANTAP_ACTIVITY_QUEUE.puml` |
 | FR-14, FR-16 | UC-05 Monitor Operasional | - |
+| FR-17, BR-10 | UC-04 Proses Pengambilan Makanan; UC-05 Monitor Operasional | `SANTAP_ACTIVITY_MEAL_SERVICE.puml` |
+| FR-18, BR-11 | UC-07 Kirim Rating dan Saran | - |
 | FR-15, NFR-06, BR-09 | UC-04 Proses Pengambilan Makanan | `SANTAP_ACTIVITY_MEAL_SERVICE.puml` |
+| FR-06, FR-07 | Identifikasi Mahasiswa; Scan QR; Input NIM Manual | `SANTAP_ACTIVITY_MEAL_SERVICE.puml` |
+| FR-08 sampai FR-10, BR-03 sampai BR-05 | Validasi Periode dan Duplikasi | `SANTAP_ACTIVITY_MEAL_SERVICE.puml` |
+| FR-11, BR-07 | Simpan Catatan Pengambilan | `SANTAP_ACTIVITY_MEAL_SERVICE.puml` |

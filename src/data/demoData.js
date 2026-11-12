@@ -1,3 +1,4 @@
+import { DEFAULT_OPERATIONS, localParts, periodWindow } from '../../shared/operations.js';
 export const students = [
   { nim: "23101001", name: "Adrian Matthew", faculty: "Informatika", residence: "Penghuni Asrama", email: "adrianmatthew@unklab.ac.id" },
   { nim: "23101002", name: "Clara Elizabeth", faculty: "Sistem Informasi", residence: "Non-penghuni", email: "claraelizabeth@unklab.ac.id" },
@@ -6,11 +7,10 @@ export const students = [
   { nim: "23101005", name: "Daniel Samuel", faculty: "Teknik Sipil", residence: "Penghuni Asrama", email: "danielsamuel@unklab.ac.id" }
 ];
 
-export const mealPeriods = [
-  { id: "morning", label: "Pagi", time: "05.30–07.00", active: true },
-  { id: "afternoon", label: "Siang", time: "11.30–13.30", active: false },
-  { id: "evening", label: "Malam", time: "17.30–19.00", active: false }
-];
+export const mealPeriods = Object.keys(DEFAULT_OPERATIONS.schedules).map(id => {
+  const window = periodWindow(id);
+  return { id, label: window.label, time: `${window.open}–${window.close}`, active: window.active };
+});
 
 export const initialQueue = [
   { id: 1, nim: "23101002", periodId: "morning", status: "waiting", joinedAt: "06:12" },
@@ -19,7 +19,7 @@ export const initialQueue = [
 ];
 
 export const initialRecords = [
-  { id: 1, nim: "23101005", periodId: "morning", period: "Pagi", date: new Date().toLocaleDateString("en-CA"), time: "07:03", staff: "Staff Demo", verificationToken: "demo-receipt-1" }
+  { id: 1, nim: "23101005", periodId: "morning", period: "Pagi", date: localParts().date, time: "07:03", staff: "Staff Demo", verificationToken: "demo-receipt-1" }
 ];
 
 // Ringkasan demo mingguan untuk mensimulasikan pola kebutuhan porsi Dining Hall.

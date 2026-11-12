@@ -1,0 +1,44 @@
+@startuml
+left to right direction
+actor Mahasiswa
+actor Staff
+actor Supervisor
+actor Head
+actor Admin
+rectangle SANTAP {
+  usecase "UC-01 Login" as U1
+  usecase "UC-02 Tampilkan QR Identitas" as U2
+  usecase "UC-03 Akses Antrean" as U3
+  usecase "UC-04 Proses Pengambilan\nQR / barcode / NIM" as U4
+  usecase "UC-05 Kelola Antrean" as U5
+  usecase "UC-06 Monitor Dining Hall\ndan jam WITA" as U6
+  usecase "UC-07 Reminder Push dan\nPenutupan Terjadwal" as U7
+  usecase "UC-08 Akses Head" as U8
+  usecase "UC-09 Kelola Akun dan Profil" as U9
+  usecase "UC-10 Rating dan Saran" as U10
+  usecase "UC-11 Konfigurasi Jadwal\ndan Rentang Sabat Opsional" as U11
+}
+Mahasiswa --> U1
+Mahasiswa --> U2
+Mahasiswa --> U3
+Mahasiswa --> U10
+Staff --> U1
+Staff --> U4
+Staff --> U5
+Supervisor --> U1
+Supervisor --> U6
+Supervisor --> U7
+Head --> U1
+Head --> U8
+Head --> U4
+Head --> U5
+Head --> U6
+Head --> U7
+Admin --> U1
+Admin --> U9
+Admin --> U11
+note bottom of U7
+  Temporal trigger: closing minus 10 minutes.
+  In-app fallback when push is unavailable.
+end note
+@enduml

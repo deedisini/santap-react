@@ -1,5 +1,6 @@
 CREATE DATABASE IF NOT EXISTS santap CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE santap;
+SET time_zone = '+08:00';
 
 CREATE TABLE IF NOT EXISTS users (
   firebase_uid VARCHAR(128) PRIMARY KEY,
@@ -22,7 +23,8 @@ CREATE TABLE IF NOT EXISTS meal_periods (
   id VARCHAR(30) PRIMARY KEY,
   label VARCHAR(30) NOT NULL,
   serving_time VARCHAR(40) NOT NULL,
-  active BOOLEAN NOT NULL DEFAULT FALSE
+  active BOOLEAN NOT NULL DEFAULT FALSE,
+  paused_date DATE NULL
 );
 
 CREATE TABLE IF NOT EXISTS queues (
@@ -53,13 +55,13 @@ CREATE TABLE IF NOT EXISTS meal_records (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (nim) REFERENCES students(nim),
   FOREIGN KEY (period_id) REFERENCES meal_periods(id),
-  INDEX record_lookup (nim, served_date, period_id)
+  UNIQUE KEY record_lookup (nim, served_date, period_id)
 );
 
 INSERT INTO meal_periods (id, label, serving_time, active) VALUES
-  ('morning', 'Pagi', '05.30-07.00', TRUE),
-  ('afternoon', 'Siang', '11.30-13.30', FALSE),
-  ('evening', 'Malam', '17.30-19.00', FALSE)
+  ('morning', 'Pagi', '05:30-08:00', TRUE),
+  ('afternoon', 'Siang', '11:30-13:00', FALSE),
+  ('evening', 'Malam', '17:00-18:30', FALSE)
 ON DUPLICATE KEY UPDATE label = VALUES(label), serving_time = VALUES(serving_time);
 
 INSERT INTO students (nim, name, faculty, residence, email) VALUES

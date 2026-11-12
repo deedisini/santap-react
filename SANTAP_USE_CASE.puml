@@ -15,6 +15,7 @@ rectangle "SANTAP" {
   usecase "UC-04\nProses Pengambilan Makanan" as UC04
   usecase "UC-05\nMonitor Operasional" as UC05
   usecase "UC-06\nKelola Profil Mahasiswa" as UC06
+  usecase "UC-07\nKirim Rating dan Saran" as UC07
   usecase "Identifikasi Mahasiswa" as UCA
   usecase "Scan QR" as UCB
   usecase "Input NIM Manual" as UCC
@@ -25,12 +26,14 @@ rectangle "SANTAP" {
 Mahasiswa --> UC01
 Mahasiswa --> UC02
 Mahasiswa --> UC03
+Mahasiswa --> UC07
 Staff --> UC01
 Staff --> UC04
 Supervisor --> UC01
 Supervisor --> UC05
 Head --> UC01
 Head --> UC05
+Head --> UC04
 Admin --> UC01
 Admin --> UC06
 

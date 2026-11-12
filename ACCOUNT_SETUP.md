@@ -67,7 +67,13 @@ Sign in as Admin, open **Kelola Akun**, fill in the user details and submit. Stu
 
 For production, configure your web server to proxy `/api/admin`, `/api/feedback`, and `/api/email-report` to the backend, use a reachable HTTPS SQL API URL instead of loopback, and configure `CORS_ORIGINS` for the frontend origin. Vite's development proxy is not part of the static build.
 
-## References
+## v1.2 operational update
+
+The trusted service server now handles operational validation even when Firestore stores meals and queues. Publish the updated Firestore rules with the new backend; browser clients no longer write operational records directly. Production proxy configuration must include `/api/operations`, `/api/admin` and `/api/push` as well as the existing feedback/report paths.
+
+Closing reminders use browser push and an in-app fallback. Configure `VITE_FIREBASE_VAPID_KEY` and server-only `ENABLE_PUSH_WORKER=true` for background delivery. Existing invitation, feedback and report emails remain unchanged. Admin can edit existing student name/faculty/residence and configure schedules plus Sabbath settings (default: Friday 18:00–Saturday 18:00 WITA weekly; sourced dated windows remain optional). See [implementation notes](./IMPLEMENTATION_V1_2.md) and [proposed SRS v1.2](./SANTAP_SRS_V1_2_PROPOSED.md).
+
+## Reference links
 
 - [Firebase Admin setup](https://firebase.google.com/docs/admin/setup)
 - [Firebase user management](https://firebase.google.com/docs/auth/admin/manage-users)

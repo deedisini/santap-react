@@ -1,0 +1,31 @@
+@startuml
+title UC-04 Meal retrieval v1.2
+|Staff|
+start
+:Identify using QR, barcode or NIM;
+if (Network available?) then (yes)
+else (no)
+  :Save pending identification locally;
+  :Show unconfirmed status;
+  :Reconnect and request synchronization;
+endif
+|Server|
+:Authenticate and authorize;
+:Resolve Asia/Makassar date and approved schedule;
+if (Serving window open and pending date valid?) then (yes)
+  :Check same-day pause and complete student profile;
+  :Begin atomic retrieval validation;
+  if (Duplicate or invalid?) then (yes)
+    :Reject without meal record;
+  else (no)
+    :Save one retrieval with trusted staff identity;
+    :Complete matching same-day queue entry;
+    :Commit and return receipt token;
+  endif
+else (no)
+  :Reject new retrieval;
+  |Staff|
+  :Keep pending identification unresolved for review;
+endif
+stop
+@enduml

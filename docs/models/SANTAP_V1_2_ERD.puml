@@ -1,0 +1,76 @@
+@startuml
+entity users {
+  * uid : Firebase UID
+  role
+  nim
+}
+entity students {
+  * nim
+  name
+  faculty
+  residence
+  email
+}
+entity meal_periods {
+  * id
+  paused_date
+}
+entity queues {
+  * id
+  nim
+  period_id
+  joined_at
+  status
+  public_id
+}
+entity meal_records {
+  * id
+  nim
+  period_id
+  served_date
+  staff_uid
+  verification_token
+}
+entity "settings/operations (Firestore)" as settings {
+  schedules
+  sabbath.enabled
+  sabbath.startTime : Friday, default 18:00 WITA
+  sabbath.endTime : Saturday, default 18:00 WITA
+  sabbath.windows : start, end, source
+}
+entity "publicQueue (Firestore projection)" as public_queue {
+  * opaque_id
+  period_id
+  date
+  joined_at
+  status
+}
+entity "pushSubscriptions (Firestore)" as subscriptions {
+  * token_hash
+  uid
+  token
+}
+entity "pushDeliveries (Firestore)" as deliveries {
+  * event_id_and_subscription
+  status
+  attempted_at
+}
+students ||--o| users : logical linkage
+students ||--o{ queues
+students ||--o{ meal_records
+meal_periods ||--o{ queues
+meal_periods ||--o{ meal_records
+users ||--o{ meal_records : validates
+users ||--o{ subscriptions
+subscriptions ||--o{ deliveries
+queues ||--o| public_queue : sanitized projection
+settings .. meal_periods : approved schedule
+note bottom of meal_records
+  SQL unique key: NIM, period ID, served date.
+  Firestore deterministic record identity.
+end note
+note bottom of settings
+  Cross-store links are logical, not SQL foreign keys.
+  SQL and Firestore are alternative operational stores.
+end note
+@enduml

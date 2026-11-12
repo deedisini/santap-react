@@ -3,12 +3,20 @@ import { QRCodeSVG } from "qrcode.react";
 import { Clock3, CheckCircle2, ScanLine, Users, Utensils } from "lucide-react";
 import QrScanner from "../components/QrScanner";
 
-export default function StudentPage({ student, queue, records, period, periodId, periodOpen, onJoinQueue }) {
+export default function StudentPage({ student, queue, publicQueue = queue, records, period, periodId, periodOpen, onJoinQueue }) {
   const [scanning, setScanning] = useState(false);
   const [scanMessage, setScanMessage] = useState(null);
   const myQueue = queue.find((item) => item.nim === student.nim && item.status === "waiting");
   const myRecord = records.find((item) => item.nim === student.nim && item.period === period);
-  const position = useMemo(() => myQueue ? queue.filter((item) => item.status === "waiting").findIndex((item) => item.id === myQueue.id) + 1 : null, [queue, myQueue]);
+  const position = useMemo(() => myQueue ? publicQueue.filter(item => item.status === 'waiting').findIndex(item => item.id === (myQueue.publicId || myQueue.id)) + 1 || null : null, [publicQueue, myQueue]);
+  const [joinMessage, setJoinMessage] = useState('');
+  const [joining, setJoining] = useState(false);
+  async function join() {
+    setJoining(true);
+    try { const result = await onJoinQueue(); setJoinMessage(result.message); }
+    catch (error) { setJoinMessage(error.message); }
+    finally { setJoining(false); }
+  }
   const payload = JSON.stringify({ type: "santap.student", version: 1, nim: student.nim });
   const receiptPayload = myRecord ? JSON.stringify({ type: "santap.meal-receipt", version: 1, recordId: myRecord.id, nim: student.nim, periodId, token: myRecord.verificationToken }) : "";
   function handleReceiptScan(value) {
@@ -49,8 +57,8 @@ export default function StudentPage({ student, queue, records, period, periodId,
       </section>
       <section className="panel queue-panel">
         <div className="panel-heading"><div><span className="eyebrow">ANTREAN DINING HALL</span><h2>Status antrean</h2></div><Users size={20} className="muted-icon" /></div>
-        {myQueue ? <div className="queue-position"><strong>#{position}</strong><div><b>Anda berada dalam antrean</b><span>Posisi diperbarui otomatis pada demo.</span></div></div> : <p className="muted">Anda belum masuk ke antrean periode ini.</p>}
-        <button className="button primary full" onClick={onJoinQueue} disabled={!periodOpen || !!myRecord || !!myQueue}>{myQueue ? "Sudah masuk antrean" : myRecord ? "Pengambilan sudah tercatat" : "Masuk antrean"}</button>
+        {myQueue ? <div className="queue-position"><strong>{position ? `#${position}` : 'Menunggu'}</strong><div><b>Anda berada dalam antrean</b><span>{position ? 'Posisi mengikuti urutan masuk antrean.' : 'Posisi belum tersedia untuk antrean lama.'}</span></div></div> : <p className="muted">Anda belum masuk ke antrean periode ini.</p>}
+        <button className="button primary full" onClick={join} disabled={joining || !periodOpen || !!myRecord || !!myQueue}>{joining ? 'Memproses...' : myQueue ? "Sudah masuk antrean" : myRecord ? "Pengambilan sudah tercatat" : "Masuk antrean"}</button><p role="status">{joinMessage}</p>
       </section>
     </div>
   </div>;

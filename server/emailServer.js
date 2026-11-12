@@ -5,6 +5,10 @@ import { body, cors, json, errorResponse } from './http.js';
 import { sendEmail, invite, validEmail } from './email.js';
 import { createAccount } from './accounts.js';
 import { sqlPool } from './database.js';
+import { firestoreOperation, readOperations } from './operations.js';
+import { validateOperations } from '../shared/operations.js';
+import { updateStudentProfile } from './profiles.js';
+import { registerPush, startPushWorker } from './push.js';
 
 export function createHandler(deps = {}) {
   return async (request, response) => {
@@ -16,6 +20,25 @@ export function createHandler(deps = {}) {
       const path = new URL(request.url, 'http://localhost').pathname;
       if (request.method !== 'POST') throw fail(404, 'not_found', 'Endpoint tidak ditemukan.');
       const mail = deps.sendEmail || sendEmail;
+      if (path === '/api/operations/config') {
+        if (Object.keys(await body(request)).length) throw fail(400, 'invalid_request', 'Permintaan tidak valid.');
+        return json(response, 200, await readOperations(services.db));
+      }
+      if (path === '/api/admin/operations') {
+        requireRole(identity, ['Admin']);
+        let config;
+        try { config = validateOperations(await body(request)); }
+        catch (error) { throw fail(400, 'invalid_config', error.message); }
+        await services.db.collection('settings').doc('operations').set(config);
+        return json(response, 200, { ok: true, config });
+      }
+      if (path === '/api/admin/students/update') {
+        requireRole(identity, ['Admin']);
+        await updateStudentProfile(await body(request), services.db, deps.pool ?? (process.env.VITE_SQL_API_URL?.trim() ? sqlPool() : null));
+        return json(response, 200, { ok: true });
+      }
+      if (path === '/api/push/register') return json(response, 200, await registerPush(services.db, identity, await body(request)));
+      if (path.startsWith('/api/operations/')) return json(response, 200, await firestoreOperation(services.db, identity, path.split('/').pop(), await body(request)));
       if (path === '/api/admin/users') {
         requireRole(identity, ['Admin']);
         const result = await createAccount(await body(request), { ...services, pool: deps.pool ?? (process.env.VITE_SQL_API_URL?.trim() ? sqlPool() : null), sendInvite: (auth, uid) => invite(auth, uid, mail) });
@@ -55,5 +78,6 @@ export function createHandler(deps = {}) {
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const port = Number(process.env.EMAIL_SERVER_PORT || 8787);
   http.createServer(createHandler()).listen(port, '127.0.0.1', () => console.log(`SANTAP API: http://127.0.0.1:${port}`));
+  if (process.env.ENABLE_PUSH_WORKER === 'true') startPushWorker();
 }
 

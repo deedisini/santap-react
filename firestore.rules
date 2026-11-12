@@ -5,30 +5,35 @@ service cloud.firestore {
     function roleIs(role) { return signedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role; }
     function staffOrAbove() { return roleIs('Staff') || roleIs('Supervisor') || roleIs('Head') || roleIs('Admin'); }
     function manager() { return roleIs('Supervisor') || roleIs('Head') || roleIs('Admin'); }
+    function ownNim(nim) { return signedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.nim == nim; }
+    match /settings/operations {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+    match /publicQueue/{id} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
     match /users/{uid} {
       allow read: if signedIn() && (request.auth.uid == uid || staffOrAbove());
       // Trusted Admin SDK APIs alone manage identity and roles, preventing escalation.
       allow write: if false;
     }
     match /students/{nim} {
-      allow read: if signedIn();
+      allow read: if staffOrAbove() || ownNim(nim);
       allow write: if false;
     }
     match /mealPeriods/{periodId} {
       allow read: if signedIn();
-      allow update: if staffOrAbove();
-      allow create, delete: if roleIs('Head') || roleIs('Admin');
+      allow write: if false;
     }
     match /queues/{queueId} {
-      allow read: if signedIn();
-      allow create: if staffOrAbove() || (roleIs('Mahasiswa') && request.resource.data.nim == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.nim);
-      allow update: if staffOrAbove();
-      allow delete: if roleIs('Head') || roleIs('Admin');
+      allow read: if staffOrAbove() || ownNim(resource.data.nim);
+      allow write: if false;
     }
     match /mealRecords/{recordId} {
-      allow read: if signedIn();
-      allow create: if staffOrAbove();
-      allow update, delete: if roleIs('Head') || roleIs('Admin');
+      allow read: if staffOrAbove() || ownNim(resource.data.nim);
+      allow write: if false;
     }
   }
 }

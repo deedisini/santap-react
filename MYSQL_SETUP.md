@@ -1,5 +1,7 @@
 # SANTAP Firebase + MySQL setup
 
+For an existing database upgrading to v1.2, review and apply [the one-time migration](./server/migrate-v1.2.sql) before starting the updated SQL server. It adds a same-day pause column and unique retrieval constraint; resolve any listed duplicates explicitly. New installations use the updated schema and do not also run this migration. Setup steps, push dependencies and acceptance limits are in [the implementation notes](./IMPLEMENTATION_V1_2.md).
+
 Firebase is used for Authentication and the `users/{uid}` profile. MySQL is used for operational data: students, meal periods, queues, and meal records.
 
 ## Using XAMPP through PowerShell

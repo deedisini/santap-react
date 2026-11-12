@@ -1,5 +1,30 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap');
 
+.operations-clock { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 18px; margin: 18px 0; padding: 20px; border: 2px solid #c4d3c7; border-radius: 12px; background: #fff; color: #24352b; }
+.operations-clock time { display: block; font-size: 28px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.operations-clock small { font-size: 13px; }
+.operations-clock p, .push-controls p { margin: 6px 0; }
+.closing-warning { border-color: #9b691b; animation: closing-border 2s ease-in-out infinite; }
+@keyframes closing-border { 0%, 100% { border-color: #9b691b; } 50% { border-color: #d7bd8b; } }
+.push-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 18px; color: #394b40; }
+.schedule-row { display: flex; flex-wrap: wrap; align-items: end; gap: 16px; padding: 12px 0; }
+.schedule-row label, .panel form.stack label { display: grid; gap: 6px; min-width: 0; }
+.panel form.stack label.sabbath-toggle { display: inline-flex; align-items: center; gap: 8px; width: fit-content; }
+.sabbath-toggle input { margin: 0; }
+.schedule-row input { max-width: 100%; }
+.panel fieldset { min-width: 0; padding: 16px; border: 1px solid #c4d3c7; }
+.pending-row { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid #c4d3c7; }
+.sabbath-theme { --green-950: #162a46; --green-900: #203958; --green-800: #294a70; --green-700: #294a70; --green-600: #365d89; --green-100: #edf2f8; --green-50: #f5f7fa; }
+.sabbath-theme .sidebar { background: #162a46; }
+.sabbath-theme .button.primary:hover:not(:disabled) { background: #203958; border-color: #203958; }
+.sabbath-greeting { color: #5d4314; background: #faf3df; border-left: 3px solid #947136; padding: 12px 16px; }
+.sabbath-theme .operations-clock { border-color: #365d89; }
+.sabbath-theme .operations-clock.closing-warning { border-color: #9b691b; }
+.operations-clock :focus-visible, .push-controls :focus-visible, .panel :focus-visible { outline: 3px solid #294a70; outline-offset: 3px; }
+.queue-row { flex-wrap: wrap; }
+@media (prefers-reduced-motion: reduce) { .closing-warning { animation: none; border-color: #9b691b; } }
+@media (max-width: 600px) { .operations-clock { align-items: flex-start; flex-direction: column; } .schedule-row label { flex: 1 1 140px; } .push-controls .button, .pending-row .button { min-height: 44px; } }
+
 /* =========================================================
    1. DESIGN TOKENS & RESET
 ========================================================= */

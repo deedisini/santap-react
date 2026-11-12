@@ -1,0 +1,50 @@
+@startuml
+title UC-06 — Sequence: Kelola Profil Mahasiswa
+
+actor Admin
+participant "ProfileEditor" as UI
+participant "Firebase Auth" as Auth
+participant "Service API" as API
+database "Firestore" as DB
+database "MySQL (opsional)" as SQL
+
+Admin -> UI : Pilih mahasiswa dan ubah profil
+UI -> UI : Validasi input wajib dan panjang teks
+Admin -> UI : Simpan profil
+UI -> Auth : getIdToken()
+Auth --> UI : Firebase ID token
+UI -> API : POST /api/admin/students/update\nBearer token, NIM, nama, fakultas, status asrama
+API -> Auth : verifyIdToken(token, checkRevoked)
+Auth --> API : UID dan role
+API -> API : requireRole(Admin) dan validasi NIM
+API -> DB : Baca users dan students untuk NIM
+DB --> API : Profil saat ini
+
+alt Bukan Admin
+  API --> UI : 403 forbidden
+  UI --> Admin : Tampilkan akses ditolak
+else NIM tidak ditemukan / profil tidak valid
+  API --> UI : 400 atau 404 + pesan validasi
+  UI --> Admin : Tampilkan perbaikan yang diperlukan
+else Profil valid
+  opt Mode SQL aktif
+    API -> SQL : Begin transaction dan UPDATE students
+    SQL --> API : Perubahan siap dikomit
+  end
+  API -> DB : Batch update users dan students
+  alt Commit Firestore gagal
+    opt Mode SQL aktif
+      API -> SQL : Rollback transaction
+    end
+    API --> UI : Kesalahan penyimpanan
+    UI --> Admin : Tampilkan kegagalan; data lama dipertahankan
+  else Commit Firestore berhasil
+    opt Mode SQL aktif
+      API -> SQL : Commit transaction
+    end
+    API --> UI : 200 ok
+    UI -> UI : Muat ulang profil mahasiswa
+    UI --> Admin : Tampilkan "Profil diperbarui"
+  end
+end
+@enduml

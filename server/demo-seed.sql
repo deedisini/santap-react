@@ -1,4 +1,5 @@
 USE santap;
+SET time_zone = '+08:00';
 
 -- Dataset demonstrasi SANTAP.
 -- meal_periods adalah tabel referensi; hanya ada tiga nilai yang sah secara bisnis.
@@ -8,9 +9,9 @@ USE santap;
 DELETE FROM meal_periods WHERE id LIKE 'period-%';
 
 INSERT INTO meal_periods (id, label, serving_time, active) VALUES
-  ('morning', 'Pagi', '05.30-07.00', TRUE),
-  ('afternoon', 'Siang', '11.30-13.30', FALSE),
-  ('evening', 'Malam', '17.30-19.00', FALSE)
+  ('morning', 'Pagi', '05:30-08:00', TRUE),
+  ('afternoon', 'Siang', '11:30-13:00', FALSE),
+  ('evening', 'Malam', '17:00-18:30', FALSE)
 ON DUPLICATE KEY UPDATE label = VALUES(label), serving_time = VALUES(serving_time), active = VALUES(active);
 
 INSERT INTO students (nim, name, faculty, residence, email) VALUES

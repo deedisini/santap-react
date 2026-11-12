@@ -3,7 +3,7 @@ import { CheckCircle2, ClipboardCheck, Search, Users } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import QrScanner from "../components/QrScanner";
 
-export default function StaffPage({ students, queue, records, period, periodOpen, setPeriodOpen, onAddQueue, onRecord, onCompleteQueue }) {
+export default function StaffPage({ students, queue, records, period, periodOpen, setPeriodOpen, onAddQueue, onRecord, onCompleteQueue, onCancelQueue }) {
   const [nim, setNim] = useState("");
   const [method, setMethod] = useState("Manual NIM");
   const [message, setMessage] = useState(null);
@@ -12,13 +12,17 @@ export default function StaffPage({ students, queue, records, period, periodOpen
   const student = useMemo(() => students.find(s => s.nim === nim.trim()), [students, nim]);
   const existing = student && records.some(r => r.nim === student.nim && r.period === period);
   const waiting = queue.filter(q => q.status === "waiting");
+  async function queueAction(action) {
+    try { const result = await action(); setMessage({ type: result?.ok === false ? 'error' : 'success', text: result?.message || 'Antrean diperbarui.' }); }
+    catch (error) { setMessage({ type: 'error', text: error.message }); }
+  }
   function identify(e) {
     e.preventDefault();
     if (!student) return setMessage({ type: "error", text: "Mahasiswa tidak ditemukan. Periksa NIM yang dimasukkan." });
     setMessage({ type: "success", text: `${student.name} berhasil ditemukan melalui ${method}.` });
   }
   function record() {
-    onRecord(student.nim).then(result => { setMessage({ type: result.ok ? "success" : "error", text: result.message }); if (result.ok) setLastReceipt(result.record); }).catch(() => setMessage({ type: "error", text: "Pencatatan gagal. Periksa koneksi Firebase dan coba lagi." }));
+    onRecord(student.nim).then(result => { setMessage({ type: result.ok ? "success" : "error", text: result.message }); if (result.ok) setLastReceipt(result.record); }).catch(error => setMessage({ type: "error", text: error.message || 'Pencatatan gagal. Periksa koneksi dan coba lagi.' }));
   }
   function handleScan(value) {
     try {
@@ -56,9 +60,10 @@ export default function StaffPage({ students, queue, records, period, periodOpen
       <div className="panel-heading"><div><span className="eyebrow">DAFTAR LAYANAN</span><h2>Antrean berjalan</h2></div><span className="count-badge"><Users size={14} /> {waiting.length} menunggu</span></div>
       {waiting.length ? <div className="queue-table">{waiting.map((item, index) => {
         const s = students.find(x => x.nim === item.nim);
-        return <div className="queue-row" key={item.id}><strong className="queue-number">{index + 1}</strong><div className="queue-person"><b>{s?.name || item.nim}</b><span>{item.nim} · Masuk {item.joinedAt}</span></div><button className="button small" onClick={() => onCompleteQueue(item.id)}><CheckCircle2 size={15} /> Selesaikan</button></div>;
+        const joined = item.joinedAt?.toDate ? item.joinedAt.toDate().toLocaleTimeString('id-ID', { timeZone: 'Asia/Makassar', hour: '2-digit', minute: '2-digit' }) : item.joinedAt;
+        return <div className="queue-row" key={item.id}><strong className="queue-number">{index + 1}</strong><div className="queue-person"><b>{s?.name || item.nim}</b><span>{item.nim} · Masuk {joined}</span></div><button className="button small" disabled={!periodOpen} onClick={() => queueAction(() => onCompleteQueue(item.id))}><CheckCircle2 size={15} /> Selesaikan</button><button className="button small secondary" onClick={() => queueAction(() => onCancelQueue(item.id))}>Batalkan</button></div>;
       })}</div> : <div className="empty-state">Belum ada mahasiswa dalam antrean.</div>}
-      <div className="inline-add"><span>Tambah antrean berdasarkan NIM</span><button className="button secondary small" onClick={() => {const candidate = students.find(s => !queue.some(q => q.nim === s.nim && q.status === "waiting") && !records.some(r => r.nim === s.nim && r.period === period)); if(candidate) {const r=onAddQueue(candidate.nim); setMessage({type:r.ok?"success":"error",text:r.message});} else setMessage({type:"error",text:"Tidak ada data demo yang tersedia untuk ditambahkan."});}}>Tambah data demo</button></div>
+      <div className="inline-add"><span>Tambah mahasiswa yang teridentifikasi ke antrean</span><button className="button secondary small" disabled={!student || !periodOpen || existing} onClick={() => queueAction(() => onAddQueue(student.nim))}>Tambah ke antrean</button></div>
     </section>
   </div>;
 }

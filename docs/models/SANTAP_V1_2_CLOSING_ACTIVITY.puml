@@ -1,0 +1,22 @@
+@startuml
+title UC-07 Closing reminders v1.2
+start
+:Resolve approved Asia/Makassar schedule;
+if (Final 10 minutes and not paused?) then (yes)
+  fork
+    :Display in-app warning and closing time;
+    :Pulse border every 2 seconds unless reduced motion;
+  fork again
+    :Worker checks Supervisor/Head subscription role;
+    if (Configured token and new delivery event?) then (yes)
+      :Claim event once;
+      :Send browser push expiring at closing;
+      :Browser deduplicates local and remote event;
+    else (no)
+      :Retain in-app fallback;
+    endif
+  end fork
+endif
+:At closing stop warning and reject retrievals;
+stop
+@enduml

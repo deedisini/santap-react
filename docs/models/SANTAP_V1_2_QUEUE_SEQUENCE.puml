@@ -1,0 +1,56 @@
+@startuml
+title UC-03 — Sequence: Masuk dan Kelola Antrean
+
+actor Mahasiswa
+actor Staff
+participant "StudentPage / StaffPage" as UI
+participant "Firebase Auth" as Auth
+participant "Service API" as API
+database "Firestore" as DB
+
+Mahasiswa -> UI : Pilih "Masuk antrean"
+UI -> Auth : getIdToken()
+Auth --> UI : Firebase ID token
+UI -> API : POST /api/operations/queue\nBearer token, NIM, periodId
+API -> Auth : verifyIdToken(token, checkRevoked)
+Auth --> API : UID, role, dan profil
+API -> DB : runTransaction()
+activate DB
+DB --> API : Jadwal, periode, profil mahasiswa,\ncatatan makan, dan antrean hari ini
+API -> API : Validasi NIM, periode aktif,\nprofil lengkap, dan role
+
+alt Mahasiswa mencoba memakai NIM lain
+  API --> UI : 403 forbidden
+  UI --> Mahasiswa : Tampilkan akses ditolak
+else Periode tutup / sudah mengambil / profil tidak lengkap
+  API --> UI : 409 + alasan penolakan
+  UI --> Mahasiswa : Tampilkan alasan
+else Sudah berada dalam antrean
+  API --> UI : 409 duplicate_queue
+  UI --> Mahasiswa : Tampilkan status antrean yang ada
+else Valid
+  API -> DB : set queues/{date_period_nim}\nstatus = waiting
+  API -> DB : set publicQueue/{hash}\nproyeksi tanpa identitas
+  DB --> API : Commit transaksi
+  API --> UI : 200 + id antrean
+  UI --> Mahasiswa : Tampilkan status dan posisi antrean
+end
+deactivate DB
+
+opt Staff menyelesaikan antrean saat pengambilan
+  Staff -> UI : Selesaikan antrean
+  UI -> API : POST /api/operations/meal
+  API -> DB : Update antrean dan publicQueue menjadi completed
+  DB --> API : Commit
+  API --> UI : Bukti pengambilan
+end
+
+opt Staff membatalkan antrean
+  Staff -> UI : Batalkan antrean
+  UI -> API : POST /api/operations/cancel\nBearer token, id
+  API -> DB : runTransaction(); status = cancelled
+  DB --> API : Commit
+  API --> UI : 200 ok
+  UI --> Staff : Tampilkan antrean dibatalkan
+end
+@enduml

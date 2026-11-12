@@ -5,9 +5,11 @@ export default function QrScanner({ onScan, onClose, title = "Scan QR atau barco
   const videoRef = useRef(null);
   const streamRef = useRef(null);
   const scannerControlsRef = useRef(null);
+  const onScanRef = useRef(onScan);
   const [error, setError] = useState("");
   const [cameras, setCameras] = useState([]);
   const [selectedCamera, setSelectedCamera] = useState("");
+  useEffect(() => { onScanRef.current = onScan; }, [onScan]);
   useEffect(() => {
     let timer;
     let active = true;
@@ -23,7 +25,7 @@ export default function QrScanner({ onScan, onClose, title = "Scan QR atau barco
       if (!active || scanned) return;
       scanned = true;
       scannerControlsRef.current?.stop();
-      onScan(value);
+      onScanRef.current(value);
     }
 
     async function startFallbackScanner() {
@@ -48,7 +50,9 @@ export default function QrScanner({ onScan, onClose, title = "Scan QR atau barco
       }
       if (!("BarcodeDetector" in window)) return startFallbackScanner();
       try {
-        streamRef.current = await navigator.mediaDevices.getUserMedia(constraints);
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        if (!active) { stream.getTracks().forEach(track => track.stop()); return; }
+        streamRef.current = stream;
         videoRef.current.srcObject = streamRef.current; await videoRef.current.play();
         await loadCameras();
         const detector = new window.BarcodeDetector({ formats: ["qr_code", "code_128", "code_39", "ean_13"] });
@@ -57,11 +61,12 @@ export default function QrScanner({ onScan, onClose, title = "Scan QR atau barco
       } catch {
         streamRef.current?.getTracks().forEach(track => track.stop());
         streamRef.current = null;
+        if (!active) return;
         startFallbackScanner();
       }
     }
     start();
     return () => { active = false; if (timer) cancelAnimationFrame(timer); scannerControlsRef.current?.stop(); streamRef.current?.getTracks().forEach(track => track.stop()); };
-  }, [onScan, selectedCamera]);
+  }, [selectedCamera]);
   return <div className="scanner-panel"><div className="scanner-top"><b>{title}</b><button className="button small" onClick={onClose}>Tutup</button></div>{cameras.length > 1 && <label className="camera-picker">Kamera<select value={selectedCamera} onChange={event => setSelectedCamera(event.target.value)}><option value="">Pilih otomatis</option>{cameras.map((camera, index) => <option key={camera.deviceId} value={camera.deviceId}>{camera.label || `Kamera ${index + 1}`}</option>)}</select></label>}<video ref={videoRef} className="scanner-video" muted playsInline />{error && <div className="notice error-notice">{error}</div>}<p className="helper-text">{helper}</p></div>;
 }

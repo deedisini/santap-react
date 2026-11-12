@@ -18,3 +18,4 @@ export const loadSqlData = (user) => request("/api/sql/bootstrap", {}, user);
 export const createSqlQueueEntry = (data, user) => request("/api/sql/queues", { method: "POST", body: JSON.stringify(data) }, user);
 export const createSqlMealRecord = (data, user) => request("/api/sql/meal-records", { method: "POST", body: JSON.stringify(data) }, user);
 export const updateSqlMealPeriod = (periodId, active, user) => request(`/api/sql/meal-periods/${periodId}`, { method: "PATCH", body: JSON.stringify({ active }) }, user);
+export const cancelSqlQueue = (id, user) => request('/api/sql/cancel', { method: 'POST', body: JSON.stringify({ id }) }, user);

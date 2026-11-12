@@ -1,9 +1,3 @@
-export function todayKey() {
-  const date = new Date();
-  const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
-  return local.toISOString().slice(0, 10);
-}
-
-export function currentTime() {
-  return new Date().toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", hour12: false });
-}
+import { localParts } from '../../shared/operations.js';
+export const todayKey = (now = new Date()) => localParts(now).date;
+export const currentTime = (now = new Date()) => localParts(now).clock.slice(0, 5);
