@@ -74,7 +74,7 @@ MYSQL_PASSWORD=
 If you assigned a MySQL password in XAMPP, put that password in `MYSQL_PASSWORD`.
 
 7. Copy the MySQL and Firebase values from `.env.example` into `.env.local`.
-8. Start the SQL API with `npm run sql-server`.
+8. Start the SQL API with `npm run sql-server`. Keep this terminal running while using SQL mode; if it is stopped, the app will state that the MySQL data server cannot be reached.
 9. Start Vite in another terminal with `npm run dev`.
 
 To demonstrate a newly saved meal record during your presentation:

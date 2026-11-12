@@ -4,14 +4,25 @@ export const sqlEnabled = Boolean(apiBaseUrl);
 
 async function request(path, options = {}, user) {
   if (!user?.getIdToken) throw new Error("Silakan masuk kembali.");
-  const token = await user.getIdToken();
-  const response = await fetch(`${apiBaseUrl}${path}`, {
-    ...options,
-    headers: { "Content-Type": "application/json", ...(options.headers || {}), Authorization: `Bearer ${token}` },
-  });
-  const data = await response.json();
-  if (!response.ok) throw new Error(data.message || "SQL API request gagal.");
-  return data;
+  for (const forceRefresh of [false, true]) {
+    const token = await user.getIdToken(forceRefresh);
+    let response;
+    try {
+      response = await fetch(`${apiBaseUrl}${path}`, {
+        ...options,
+        headers: { "Content-Type": "application/json", ...(options.headers || {}), Authorization: `Bearer ${token}` },
+      });
+    } catch {
+      throw new Error("Server data MySQL tidak dapat dihubungi. Jalankan npm run sql-server, lalu periksa MariaDB dan VITE_SQL_API_URL.");
+    }
+    let data;
+    try { data = await response.json(); }
+    catch { throw new Error(`Server data MySQL mengembalikan respons tidak valid (HTTP ${response.status}).`); }
+    if (response.status === 401 && data?.code === 'unauthorized' && !forceRefresh) continue;
+    if (!response.ok) throw new Error(data.message || "Permintaan ke server data MySQL gagal.");
+    return data;
+  }
+  throw new Error("Silakan masuk kembali untuk memperbarui sesi.");
 }
 
 export const loadSqlData = (user) => request("/api/sql/bootstrap", {}, user);
