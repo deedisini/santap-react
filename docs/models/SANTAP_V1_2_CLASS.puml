@@ -1,0 +1,95 @@
+@startuml
+title SANTAP v1.2 Class Diagram
+hide circle
+skinparam classAttributeIconSize 0
+
+class UserProfile {
+  -uid: string
+  -role: Role
+  -nim: string
+  -name: string
+  +canAccess(feature: string): boolean
+}
+
+class Student {
+  -nim: string
+  -name: string
+  -faculty: string
+  -email: string
+  -residence: ResidenceStatus
+  +isComplete(): boolean
+}
+
+class MealPeriod {
+  -id: PeriodId
+  -label: string
+  -pausedDate: date
+  +window(now: datetime, schedule: OperationsConfig): ServiceWindow
+  +isServing(now: datetime, schedule: OperationsConfig): boolean
+}
+
+class QueueEntry {
+  -id: string
+  -date: date
+  -joinedAt: datetime
+  -status: QueueStatus
+  -publicId: string
+  +cancel(): void
+  +complete(recordId: string): void
+}
+
+class MealRecord {
+  -id: string
+  -date: date
+  -time: time
+  -verificationToken: string
+  +isDuplicateOf(nim: string, period: PeriodId, date: date): boolean
+}
+
+class OperationsConfig {
+  -schedules: ScheduleSet
+  -sabbathEnabled: boolean
+  -sabbathStartTime: time
+  -sabbathEndTime: time
+  +activePeriod(now: datetime): MealPeriod
+  +validate(): boolean
+}
+
+class PushSubscription {
+  -tokenHash: string
+  -token: string
+  +isAuthorized(user: UserProfile): boolean
+}
+
+class PushDelivery {
+  -eventId: string
+  -status: DeliveryStatus
+  -attemptedAt: datetime
+  +claimOnce(): boolean
+}
+
+enum Role {
+  Mahasiswa
+  Staff
+  Supervisor
+  Head
+  Admin
+}
+
+enum QueueStatus {
+  waiting
+  completed
+  cancelled
+}
+
+Student "1" -- "0..1" UserProfile : linked by nim
+Student "1" -- "0..*" QueueEntry : joins
+Student "1" -- "0..*" MealRecord : receives
+MealPeriod "1" -- "0..*" QueueEntry : queues for
+MealPeriod "1" -- "0..*" MealRecord : records
+UserProfile "1" -- "0..*" MealRecord : validates
+UserProfile "1" -- "0..*" PushSubscription : owns
+PushSubscription "1" *-- "0..*" PushDelivery : delivery claims
+OperationsConfig ..> MealPeriod : schedules
+MealRecord ..> QueueEntry : completes matching entry
+@enduml
