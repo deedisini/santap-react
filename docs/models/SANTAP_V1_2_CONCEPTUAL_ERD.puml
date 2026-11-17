@@ -1,0 +1,116 @@
+@startchen
+title SANTAP v1.2 Conceptual / Logical ERD
+
+' Chen notation: rectangles are entities, diamonds are relationships,
+' and ovals are attributes. This model intentionally omits SQL/Firestore
+' implementation details; see SANTAP_V1_2_ERD.puml for the physical view.
+
+entity Student {
+  nim <<key>>
+  name
+  faculty
+  residence
+  email
+}
+
+entity UserAccount {
+  uid <<key>>
+  role
+}
+
+entity MealPeriod {
+  periodId <<key>>
+  label
+  pausedDate
+}
+
+entity QueueEntry {
+  queueId <<key>>
+  joinedAt
+  status
+}
+
+entity MealRecord {
+  recordId <<key>>
+  servedDate
+  servedTime
+  verificationToken
+}
+
+entity OperationsConfiguration {
+  configurationId <<key>>
+  schedules
+  sabbathEnabled
+}
+
+entity PushSubscription {
+  subscriptionId <<key>>
+  token
+}
+
+entity PushDelivery {
+  deliveryId <<key>>
+  status
+  attemptedAt
+}
+
+relationship HAS_ACCOUNT {
+}
+
+relationship JOINS {
+}
+
+relationship FOR_PERIOD {
+}
+
+relationship RECEIVES {
+}
+
+relationship OCCURS_IN {
+}
+
+relationship VALIDATED_BY {
+}
+
+relationship COMPLETES_AS {
+}
+
+relationship DEFINES {
+}
+
+relationship OWNS {
+}
+
+relationship CLAIMS {
+}
+
+Student -(0,1)- HAS_ACCOUNT
+HAS_ACCOUNT -(0,1)- UserAccount
+
+Student -(0,N)- JOINS
+JOINS -(1,1)- QueueEntry
+
+MealPeriod -(0,N)- FOR_PERIOD
+FOR_PERIOD -(1,1)- QueueEntry
+
+Student -(0,N)- RECEIVES
+RECEIVES -(1,1)- MealRecord
+
+MealPeriod -(0,N)- OCCURS_IN
+OCCURS_IN -(1,1)- MealRecord
+
+UserAccount -(0,N)- VALIDATED_BY
+VALIDATED_BY -(1,1)- MealRecord
+
+QueueEntry -(0,1)- COMPLETES_AS
+COMPLETES_AS -(0,1)- MealRecord
+
+OperationsConfiguration -(1,1)- DEFINES
+DEFINES -(1,N)- MealPeriod
+
+UserAccount -(0,N)- OWNS
+OWNS -(1,1)- PushSubscription
+
+PushSubscription -(0,N)- CLAIMS
+CLAIMS -(1,1)- PushDelivery
+@endchen

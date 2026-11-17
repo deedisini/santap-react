@@ -1,6 +1,6 @@
 # Kamus Data dan Pemetaan Domain SANTAP v1.2
 
-Dokumen ini mendokumentasikan spesifikasi struktur data, tipe data, batasan (*constraints*), hubungan antar-entitas, serta pemetaan formal dari diagram kelas domain ([SANTAP_V1_2_CLASS.puml](models/SANTAP_V1_2_CLASS.puml)) dan ERD ([SANTAP_V1_2_ERD.puml](models/SANTAP_V1_2_ERD.puml)) ke dalam implementasi database SQL ([schema.sql](../server/schema.sql)), Cloud Firestore ([firestore.rules](../firestore.rules), [operations.js](../server/operations.js)), dan penyimpanan lokal (*offline cache*).
+Dokumen ini mendokumentasikan spesifikasi struktur data, tipe data, batasan (*constraints*), hubungan antar-entitas, serta pemetaan formal dari diagram kelas domain ([SANTAP_V1_2_CLASS.puml](models/SANTAP_V1_2_CLASS.puml)), conceptual/logical ERD ([SANTAP_V1_2_CONCEPTUAL_ERD.puml](models/SANTAP_V1_2_CONCEPTUAL_ERD.puml)), dan physical ERD ([SANTAP_V1_2_ERD.puml](models/SANTAP_V1_2_ERD.puml)) ke dalam implementasi database SQL ([schema.sql](../server/schema.sql)), Cloud Firestore ([firestore.rules](../firestore.rules), [operations.js](../server/operations.js)), dan penyimpanan lokal (*offline cache*).
 
 Acuan teknis terkait: [SRS Final](srs/SANTAP_SRS_FINAL.md), [Matriks Keterlacakan](KETERLACAKAN.md), dan [Laporan Pengujian](PENGUJIAN.md).
 

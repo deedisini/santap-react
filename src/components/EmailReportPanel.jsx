@@ -36,7 +36,7 @@ export default function EmailReportPanel({ weeklyRows, weeklyMean, period, user,
   }
 
   return <section className="panel email-report-panel">
-    <div className="panel-heading"><div><span className="eyebrow">LAPORAN EMAIL</span><h2>Kirim ringkasan ke pengelola</h2><p>Kirim histori konsumsi dan estimasi porsi ke Supervisor atau Kepala Dining Hall.</p></div><Mail className="muted-icon" /></div>
+    <div className="panel-heading"><div><span className="eyebrow">EMAIL LAPORAN</span><h2>Kirim ringkasan ke pengelola</h2><p>Kirim histori konsumsi dan estimasi porsi ke Supervisor atau Kepala Dining Hall.</p></div><Mail className="muted-icon" /></div>
     <form className="email-report-form" onSubmit={sendReport}>
       <label>Email penerima<input type="email" value={recipient} onChange={event => setRecipient(event.target.value)} placeholder="supervisor@unklab.ac.id" required /></label>
       <label>Subjek<input value={subject} onChange={event => setSubject(event.target.value)} required /></label>

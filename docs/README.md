@@ -5,7 +5,7 @@ Acuan teknis terbaru adalah [SRS Markdown](srs/SANTAP_SRS_FINAL.md), [matriks ke
 | Kelompok | Isi dan penggunaan |
 |---|---|
 | [srs/](srs/) | SRS terbaru dalam Markdown; DOCX final lama, template dosen, v1.1, usulan v1.2, dan sumber KINTARA tetap tersedia. |
-| [models/](models/) | Sumber PlantUML use case, tiga activity, tiga sequence, class, dan ERD. |
+| [models/](models/) | Sumber PlantUML use case, tiga activity, tiga sequence, class, conceptual/logical ERD, dan physical ERD. |
 | [setup/](setup/) | Instalasi akun/backend dan daftar akun historis. |
 | [worksheets/](worksheets/) | Sheet kebutuhan lama dan workbook proyek dalam subfolder lembar-proyek. |
 | [presentation/](presentation/) | Dokumen persiapan lama dan skenario demo terbaru. |

@@ -56,10 +56,4 @@ Total: 22 akun.
 
 
 
-Kata sandi tidak disimpan di repository. Gunakan undangan atau reset kata sandi melalui administrator.
 
-
-
-Periode makan
-
-Download QR
