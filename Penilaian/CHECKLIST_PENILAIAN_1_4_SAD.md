@@ -64,17 +64,17 @@ Dokumen ini menyalin butir penilaian dari gambar rubrik yang diberikan untuk SAN
 | 4.2 | Objek dan pesan di sequence diagram konsisten dengan kelas dan operasi di class diagram | Bergantung pada sequence dan class diagram | Belum siap |
 | 4.3 | Class diagram minimal 5 kelas lengkap dengan atribut (bertipe), operasi, dan visibility | Belum ada sumber class diagram di [docs/models/](../docs/models/) | Belum siap |
 | 4.4 | Relasi antarkelas benar: asosiasi, multiplicity, agregasi/komposisi, generalisasi | Bergantung pada class diagram | Belum siap |
-| 4.5 | Model data (ERD atau skema database) minimal 5 entitas/tabel dengan PK, FK, dan kardinalitas | [SANTAP_V1_2_ERD.puml](../docs/models/SANTAP_V1_2_ERD.puml); cocokkan PK/FK eksplisit dengan [schema.sql](../server/schema.sql) | Sebagian |
-| 4.6 | Model data konsisten dengan class diagram dan dilengkapi kamus data (nama kolom, tipe, keterangan) | Skema SQL tersedia, tetapi class diagram dan kamus data formal masih perlu dibuat | Belum siap |
+| 4.5 | Model data (ERD atau skema database) minimal 5 entitas/tabel dengan PK, FK, dan kardinalitas | [SANTAP_V1_2_CONCEPTUAL_ERD.puml](../docs/models/SANTAP_V1_2_CONCEPTUAL_ERD.puml); relational variant is preserved in [database-assignment](../database-assignment/) | Sebagian |
+| 4.6 | Model data konsisten dengan class diagram dan dilengkapi kamus data (nama kolom, tipe, keterangan) | [Kamus data](../docs/KAMUS_DATA.md) memetakan class/domain ke koleksi Firestore | Sebagian |
 | 4.7 | Prototipe UI minimal 6 layar yang mencakup use case utama, dapat diklik (clickable) | Prototype React di [src/](../src/); buat daftar enam layar dan bukti klik untuk demo | Sebagian |
 | 4.8 | UI menerapkan prinsip desain input/output: konsisten, validasi input, pesan kesalahan yang jelas | Implementasi React dan validasi API; lakukan review UI akhir | Sebagian |
-| 4.9 | Arsitektur sistem dan teknologi final ditetapkan; kerangka proyek dan database awal sudah ada di repository | Dokumen inisiasi, bagian 1.9; [src/](../src/), [server/](../server/), dan [schema.sql](../server/schema.sql) | Siap |
+| 4.9 | Arsitektur sistem dan teknologi final ditetapkan; kerangka proyek dan database awal sudah ada di repository | Dokumen inisiasi, bagian 1.9; [src/](../src/), [server/](../server/), [firestore.rules](../firestore.rules) | Siap |
 | 4.10 | Matriks keterlacakan diperbarui: kebutuhan → use case → diagram → kelas/tabel → layar | Matriks saat ini mencakup kebutuhan, use case, activity; perlu ditambah sequence, class, tabel, dan layar setelah artefaknya dibuat | Sebagian |
 
 ## Prioritas tindak lanjut Penilaian 4
 
 1. Buat tiga sequence diagram untuk proses pengambilan makanan, antrean, dan kelola profil/akun.
 2. Buat satu class diagram dengan minimal lima kelas dan cocokkan dengan operasi serta ERD.
-3. Buat kamus data dari [schema.sql](../server/schema.sql) dan verifikasi PK, FK, tipe, serta kardinalitas.
+3. Buat kamus data dari koleksi Firestore dan verifikasi key, field, aturan akses, serta kardinalitas domain.
 4. Dokumentasikan enam layar clickable beserta tautan kebutuhan dan use case pada matriks keterlacakan.
 5. Render seluruh PlantUML dan lakukan pemeriksaan keterbacaan sebelum dikumpulkan.

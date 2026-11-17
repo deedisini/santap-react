@@ -51,7 +51,7 @@ Struktur dan durasi panduan ini dirancang memenuhi **Rubrik Penilaian 6 (S1 s/d 
 - **Sequence Diagram & Struktur Kelas:**
   Tunjukkan [SANTAP_V1_2_MEAL_SEQUENCE.svg](../models/SANTAP_V1_2_MEAL_SEQUENCE.svg) yang memperlihatkan fragmen alternatif (`alt`): jika belum makan -> berhasil dicatat dan antrean diselesaikan; jika sudah makan -> transaksi di-rollback dan penolakan dikembalikan.
 - **Model Data & Kamus Data:**
-  Perlihatkan [SANTAP_V1_2_ERD.svg](../models/SANTAP_V1_2_ERD.svg) dan jelaskan konstrain keunikan `UNIQUE KEY record_lookup (nim, served_date, period_id)` di MySQL serta pemetaan NoSQL Cloud Firestore.
+  Perlihatkan [SANTAP_V1_2_CONCEPTUAL_ERD.svg](../models/SANTAP_V1_2_CONCEPTUAL_ERD.svg) dan jelaskan relasi mahasiswa, periode, antrean, catatan pengambilan, serta proyeksi antrean publik di Cloud Firestore.
 
 ---
 
@@ -131,7 +131,7 @@ Struktur dan durasi panduan ini dirancang memenuhi **Rubrik Penilaian 6 (S1 s/d 
   ```powershell
   npm test
   ```
-- Soroti bahwa **31 pengujian otomatis** (`node:test`) mencakup operasi Firestore/SQL dengan mock, validasi role, QR, WITA, serta regresi profil. Hasil ini belum membuktikan konkurensi database atau layanan eksternal nyata; gunakan [laporan pengujian](../PENGUJIAN.md) untuk batas bukti.
+- Soroti jumlah pengujian otomatis aktual (`node:test`) yang mencakup operasi Firestore dengan mock, validasi role, QR, WITA, email, push, serta regresi profil. Hasil ini belum membuktikan konkurensi database atau layanan eksternal nyata; gunakan [laporan pengujian](../PENGUJIAN.md) untuk batas bukti.
 
 ### 4.2 Kesimpulan & Penutup
 - *"SANTAP berhasil menjawab kebutuhan Fern Wallace Dining Hall melalui sistem yang cepat, mencegah duplikasi porsi makan secara andal, melindungi privasi mahasiswa, dan memberikan visibilitas penuh bagi pimpinan Dining Hall."*
@@ -142,7 +142,7 @@ Struktur dan durasi panduan ini dirancang memenuhi **Rubrik Penilaian 6 (S1 s/d 
 ## 5. Tips Mengatasi Kendala Saat Live Demo (*Troubleshooting*)
 
 1. **Bagaimana jika jaringan kampus / internet terputus saat presentasi?**
-   - Jangan panik. Mode demo (`npm run demo`) beroperasi 100% secara lokal (*in-memory*) di peramban tanpa memerlukan koneksi ke internet, Firebase, maupun server MySQL.
+   - Jangan panik. Mode demo (`npm run demo`) beroperasi 100% secara lokal (*in-memory*) di peramban tanpa memerlukan koneksi ke internet, Firebase, maupun database eksternal.
 2. **Bagaimana jika waktu demo berada di luar jam makan Dining Hall?**
    - Masuk ke peran **Admin**, buka tab *Pengaturan Operasional*, sesuaikan sementara jam periode aktif dengan jam saat presentasi berlangsung, simpan, lalu kembali ke layar Staff.
 3. **Bagaimana cara mengulang data demo dari awal?**

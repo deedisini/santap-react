@@ -7,7 +7,6 @@
 Scanning identifies a student; it does not itself record attendance or consume a meal allowance. An authorized staff member records the handover (including through queue completion). The server checks for an existing meal record using **NIM + service date (WITA) + meal period**. Only one collection is allowed for that combination. Another period or another date has its own allowance; reopening a period on the same day does not reset it.
 
 - [Firestore operations](../server/operations.js) check existing records inside a transaction and create a deterministic date/period/NIM document. Concurrent writes cannot create two records at that document. Legacy records are also checked.
-- [MySQL operations](../server/sqlOperations.js) use a transaction and row locks. The [schema](../server/schema.sql) additionally enforces `UNIQUE (nim, served_date, period_id)`.
 - [Firestore rules](../firestore.rules) prohibit direct client writes to meal records. Client-side button disabling is a convenience, not the enforcement boundary.
 - Pending offline scans are only temporary identifications; they require server validation before becoming confirmed collections. Local demo mode is not a shared production enforcement system.
 

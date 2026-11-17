@@ -5,7 +5,7 @@ Acuan teknis terbaru adalah [SRS Markdown](srs/SANTAP_SRS_FINAL.md), [matriks ke
 | Kelompok | Isi dan penggunaan |
 |---|---|
 | [srs/](srs/) | SRS terbaru dalam Markdown; DOCX final lama, template dosen, v1.1, usulan v1.2, dan sumber KINTARA tetap tersedia. |
-| [models/](models/) | Sumber PlantUML use case, tiga activity, tiga sequence, class, conceptual/logical ERD, dan physical ERD. |
+| [models/](models/) | Sumber PlantUML use case, tiga activity, tiga sequence, class, dan conceptual/logical ERD. Physical SQL ERD dipisahkan ke [database-assignment](../database-assignment/). |
 | [setup/](setup/) | Instalasi akun/backend dan daftar akun historis. |
 | [worksheets/](worksheets/) | Sheet kebutuhan lama dan workbook proyek dalam subfolder lembar-proyek. |
 | [presentation/](presentation/) | Dokumen persiapan lama dan skenario demo terbaru. |
@@ -13,7 +13,7 @@ Acuan teknis terbaru adalah [SRS Markdown](srs/SANTAP_SRS_FINAL.md), [matriks ke
 | [archive/](archive/) | UML dan catatan implementasi versi terdahulu. |
 | [Penilaian/](../Penilaian/) | Enam gambar rubrik, sumber inisiasi/elisitasi, dan checklist final. |
 
-Riwayat audit, perbaikan, dan pemindahan berkas tersedia pada [daftar perubahan lengkap](DAFTAR_PERUBAHAN.md).
+Riwayat audit, perbaikan, dan pemindahan berkas tersedia pada [daftar perubahan lengkap](DAFTAR_PERUBAHAN.md). Materi MySQL/MariaDB untuk tugas Database berada di [database-assignment](../database-assignment/) dan bukan bagian dari runtime SANTAP.
 
 ## Paket pengumpulan
 

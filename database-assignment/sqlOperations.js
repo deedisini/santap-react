@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import { assertServing, localParts, DEFAULT_OPERATIONS } from '../shared/operations.js';
-import { fail, requireRole } from './auth.js';
-import { checkStudent } from './operations.js';
+import { fail, requireRole } from '../server/auth.js';
+import { checkStudent } from '../server/operations.js';
 
 export async function sqlOperation(pool, identity, action, data, config, now) {
   const clock = () => now || new Date();

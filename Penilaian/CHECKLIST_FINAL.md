@@ -58,11 +58,11 @@ Gambar rubrik yang diberikan menampilkan 3.1–3.9. Tidak ditambahkan butir 3.10
 | 4.2 Konsistensi sequence dan kelas | Tersedia | Model konseptual dipetakan ke fungsi nyata dalam [kamus data](../docs/KAMUS_DATA.md) |
 | 4.3 Minimal 5 kelas, atribut/operasi/visibility | Tersedia | [Class](../docs/models/SANTAP_V1_2_CLASS.puml): 8 kelas domain dan enum |
 | 4.4 Relasi dan multiplicity | Tersedia | Asosiasi/dependensi; tidak memaksakan komposisi/generalization yang tidak ada pada domain |
-| 4.5 Minimal 5 tabel/entitas, PK/FK/kardinalitas | Tersedia | [ERD](../docs/models/SANTAP_V1_2_ERD.puml), [schema](../server/schema.sql); FK fisik dibedakan dari relasi logis |
+| 4.5 Minimal 5 tabel/entitas, PK/FK/kardinalitas | Tersedia | [Conceptual ERD](../docs/models/SANTAP_V1_2_CONCEPTUAL_ERD.puml) memuat entitas dan kardinalitas domain; relational SQL material is separate in [database-assignment](../database-assignment/) |
 | 4.6 Model dan kamus data konsisten | Tersedia | Nama field, tipe, akses Firestore, QR, cache, dan fungsi diselaraskan dengan kode |
 | 4.7 Minimal 6 layar clickable | Tersedia | 6 tampilan/panel fungsional SRS §8; bukan 6 URL terpisah |
 | 4.8 Konsistensi/validasi/pesan UI | Sebagian | Validasi dan alur utama diuji DOM; kamera, seluruh keyboard/kontras/responsif belum diuji perangkat nyata |
-| 4.9 Arsitektur final, kerangka/database awal | Tersedia | src/server/shared, skema/seed; koneksi database nyata perlu verifikasi lingkungan |
+| 4.9 Arsitektur final, kerangka/database awal | Tersedia | src/server/shared, Firestore rules dan collection mapping; koneksi Firebase nyata perlu verifikasi lingkungan |
 | 4.10 Keterlacakan sampai kelas/tabel/layar | Tersedia | Matriks bersama kamus data dan SRS |
 
 ## Penilaian 5 — Pengembangan dan pengujian
@@ -71,7 +71,7 @@ Gambar rubrik yang diberikan menampilkan 3.1–3.9. Tidak ditambahkan butir 3.10
 |---|---|---|
 | 5.1 Repository dan commit semua anggota | Sebagian | Repository ada; audit belum di-commit. Riwayat kontribusi semua anggota tidak dibuat/direkayasa |
 | 5.2 Semua Must berjalan end-to-end | Sebagian | 31 test mock/DOM lulus; login/backend/perangkat nyata belum diuji end-to-end |
-| 5.3 Database sesuai model | Sebagian | Skema dan operasi tersedia; instalasi/konkurensi MySQL/Firestore nyata belum diverifikasi |
+| 5.3 Database sesuai model | Sebagian | Firestore collections and operations are mapped; Firebase rules/emulator and production concurrency are not yet verified |
 | 5.4 Struktur kode mengikuti domain | Tersedia | Pemetaan fungsi modul dalam kamus data; bukan kelas OOP literal |
 | 5.5 UI dan alasan perubahan desain | Sebagian | [Daftar perubahan](../docs/DAFTAR_PERUBAHAN.md) dan SRS §8; pencocokan screenshot prototipe final belum dilakukan |
 | 5.6 Validasi/error tidak crash | Sebagian | QR, NIM, periode, profil dan role diuji pada kasus tercatat; tidak mengklaim bebas semua bug |
@@ -93,7 +93,7 @@ Gambar rubrik yang diberikan menampilkan 3.1–3.9. Tidak ditambahkan butir 3.10
 | K2 Demo sesuai UC/SRS | Tersedia | [Panduan demo](../docs/presentation/PANDUAN_DEMO.md) dengan batas simulasi |
 | K3 README lengkap | Tersedia | [README](../README.md) |
 | K4 Kode rapi/terstruktur | Tersedia | Lapisan src/server/shared; placeholder tidak terpakai dihapus |
-| K5 Source, skema, seed, README | Tersedia | Berkas ada; belum commit/push paket audit |
+| K5 Source, Firestore rules, README | Tersedia | Berkas ada; materi SQL terpisah di database-assignment; belum commit/push paket audit |
 | S1 Alur presentasi lengkap | Tersedia | Panduan mencakup masalah hingga pengujian |
 | S2 Alasan desain | Tersedia | SDLC, peran, data dan trade-off penyimpanan dijelaskan |
 | S3 Template slide, diagram/screenshot jelas | Sebagian | Diagram SVG dan panduan tersedia; slide final/screenshot belum diperbarui dan diverifikasi |
@@ -104,6 +104,6 @@ Gambar rubrik yang diberikan menampilkan 3.1–3.9. Tidak ditambahkan butir 3.10
 ## Tindakan sebelum pengumpulan
 
 1. Lengkapi persetujuan dosen, bukti elisitasi, identitas anggota dan catatan review asli.
-2. Jalankan uji penerimaan Firebase/MySQL/SMTP/push/kamera di lingkungan uji dan catat hasil nyata.
+2. Jalankan uji penerimaan Firebase/SMTP/push/kamera di lingkungan uji dan catat hasil nyata.
 3. Salin revisi FINAL ke template Word/Excel yang diwajibkan dan verifikasi format serta angka; jangan menjalankan generator isi lama untuk menimpa revisi.
 4. Selesaikan slide sesuai template, lakukan latihan 20 menit, tinjau diff dan commit dengan kontribusi anggota sebenarnya, kemudian kumpulkan melalui kanal kampus.

@@ -97,3 +97,22 @@ test('student rating can omit suggestion; recipient and identity come from serve
     if (prior === undefined) delete process.env.FEEDBACK_TO; else process.env.FEEDBACK_TO = prior;
   }
 });
+
+test('supervisor report is sent to the requested recipient through the server', async () => {
+  const sent = [];
+  const handler = createHandler({ services: services('Supervisor'), sendEmail: async message => sent.push(message) });
+  const result = await request(handler, '/api/email-report', {
+    to: 'head@example.com',
+    subject: 'Ringkasan minggu ini',
+    report: 'LAPORAN SANTAP\nTotal: 42',
+  });
+  assert.equal(result.status, 200);
+  assert.equal(result.payload.message, 'Laporan berhasil dikirim.');
+  assert.deepEqual(sent, [{ to: 'head@example.com', subject: 'Ringkasan minggu ini', text: 'LAPORAN SANTAP\nTotal: 42' }]);
+});
+
+test('students cannot send supervisor reports', async () => {
+  const handler = createHandler({ services: services('Mahasiswa'), sendEmail: async () => { throw new Error('must not send'); } });
+  const result = await request(handler, '/api/email-report', { to: 'head@example.com', report: 'test' });
+  assert.equal(result.status, 403);
+});

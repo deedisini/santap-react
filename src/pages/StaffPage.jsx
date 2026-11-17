@@ -31,7 +31,7 @@ export default function StaffPage({ students, queue, records, period, periodOpen
       setNim(parseStudentIdentity(value));
       setMessage({ type: 'success', text: 'Kode terbaca. Periksa identitas mahasiswa sebelum mencatat.' });
     } catch (error) { setNim(''); setMessage({ type: 'error', text: error.message }); }
-    setScanning(false); setMethod("Scan QR");
+    setScanning(false);
   }
   return <div className="staff-layout">
     <ServiceQr />

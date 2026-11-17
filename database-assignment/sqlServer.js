@@ -1,9 +1,9 @@
 import http from "node:http";
 import { sqlPool } from './database.js';
-import { authenticate, requireRole, fail } from './auth.js';
-import { body, cors, json, errorResponse } from './http.js';
-import { firebase } from './auth.js';
-import { readOperations } from './operations.js';
+import { authenticate, requireRole, fail } from '../server/auth.js';
+import { body, cors, json, errorResponse } from '../server/http.js';
+import { firebase } from '../server/auth.js';
+import { readOperations } from '../server/operations.js';
 import { sqlOperation } from './sqlOperations.js';
 
 const port = Number(process.env.SQL_SERVER_PORT || 8788);

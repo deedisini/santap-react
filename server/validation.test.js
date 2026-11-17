@@ -1,7 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { parseStudentIdentity, isServiceQr, SERVICE_QR_PAYLOAD } from '../shared/serviceQr.js';
-import { sqlOperation } from './sqlOperations.js';
 import { firestoreOperation } from './operations.js';
 import { validEmail } from './email.js';
 import nodemailer from 'nodemailer';
@@ -20,13 +19,9 @@ test('public service marker is recognized separately from identity and receipt',
   for (const value of ['null', '{}', '{broken', '{"type":"santap.service","version":2}', '123']) assert.equal(isServiceQr(value), false);
 });
 
-test('invalid SQL periods and malformed queue IDs fail before accessing storage', async () => {
+test('malformed queue IDs fail before accessing Firestore', async () => {
   const actor = { role: 'Staff', uid: 'staff' };
-  for (const periodId of [undefined, '', 'unknown', 'toString']) {
-    await assert.rejects(sqlOperation(null, actor, 'meal', { periodId }), { status: 400, code: 'invalid_period' });
-  }
   for (const id of [undefined, null, '../queue', {}, '']) {
-    await assert.rejects(sqlOperation(null, actor, 'cancel', { id }), { status: 400, code: 'invalid_queue' });
     await assert.rejects(firestoreOperation(null, actor, 'cancel', { id }), { status: 400, code: 'invalid_queue' });
   }
 });

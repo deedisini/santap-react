@@ -12,7 +12,7 @@
 1. Install dependencies with `npm install`.
 2. In Firebase Console, enable Email/Password authentication and create the Firestore database if not already configured.
 3. Configure server credentials using Application Default Credentials. For a local service account JSON file, keep it **outside this repository** and set `GOOGLE_APPLICATION_CREDENTIALS` to its absolute path. Never put service-account credentials in a `VITE_` variable or a frontend file.
-4. Add the following server-only settings to your existing `.env.local` without replacing your existing Firebase/MySQL settings:
+4. Add the following server-only settings to your existing `.env.local` without replacing your existing Firebase settings:
 
    ```dotenv
    GOOGLE_APPLICATION_CREDENTIALS=C:/private/santap-service-account.json
@@ -25,7 +25,7 @@
    The existing SMTP integration defaults to Gmail on port 465. Use your actual sender settings. The feedback recipient is configured on the server, not selected by students.
 
 5. Publish [firestore.rules](../../firestore.rules) in Firebase Console. Browser clients cannot assign roles; account provisioning uses the authenticated server API.
-6. If `VITE_SQL_API_URL` is configured, import [server/schema.sql](../../server/schema.sql) and start MySQL as described in [MYSQL_SETUP.md](./MYSQL_SETUP.md). New students are stored in MySQL; otherwise they are stored in Firestore. Profiles always remain in Firestore.
+6. SANTAP stores new students, profiles, queues, periods, and meal records in Firestore. MySQL/MariaDB material for the separate Database class is kept in [database-assignment](../../database-assignment/) and is not required to run SANTAP.
 
 ## Create the first Admin
 
@@ -57,21 +57,22 @@ Run these in separate terminals:
 
 ```powershell
 npm run email-server
-npm run sql-server
 npm run dev
 ```
 
-The SQL server is needed only in MySQL mode. The email server now also handles account creation and student feedback. Vite forwards `/api` requests to that server on port 8787; the SQL client uses `VITE_SQL_API_URL` on port 8788.
+The email server handles account creation, student feedback, and supervisor reports. Vite forwards `/api` requests to that server on port 8787. Keep the email-server terminal open while using the live Firebase mode.
 
 Sign in as Admin, open **Kelola Akun**, fill in the user details and submit. Students additionally require NIM, faculty, and residence. For an existing roster entry, use the stored email: matching entries are linked without replacing their details; mismatched or already-claimed NIMs are rejected. If invitation delivery fails after account creation, use **Kirim ulang undangan**.
 
-For production, configure your web server to proxy `/api/admin`, `/api/feedback`, and `/api/email-report` to the backend, use a reachable HTTPS SQL API URL instead of loopback, and configure `CORS_ORIGINS` for the frontend origin. Vite's development proxy is not part of the static build.
+For production, configure your web server to proxy `/api/admin`, `/api/feedback`, and `/api/email-report` to the backend, and configure `CORS_ORIGINS` for the frontend origin. Vite's development proxy is not part of the static build.
 
 ## v1.2 operational update
 
 The trusted service server now handles operational validation even when Firestore stores meals and queues. Publish the updated Firestore rules with the new backend; browser clients no longer write operational records directly. Production proxy configuration must include `/api/operations`, `/api/admin` and `/api/push` as well as the existing feedback/report paths.
 
 Closing reminders use browser push and an in-app fallback. Configure `VITE_FIREBASE_VAPID_KEY` and server-only `ENABLE_PUSH_WORKER=true` for background delivery. Existing invitation, feedback and report emails remain unchanged. Admin can edit existing student name/faculty/residence and configure schedules plus Sabbath settings (default: Friday 18:00–Saturday 18:00 WITA weekly; sourced dated windows remain optional). See [implementation notes](../archive/IMPLEMENTATION_V1_2.md) and [proposed SRS v1.2](../srs/SANTAP_SRS_V1_2_PROPOSED.md).
+
+If a form reports that the server is unavailable, confirm that `npm run email-server` is running on port 8787. If it reports that email is not configured, check `SMTP_USER`, `SMTP_APP_PASSWORD`, and (for student feedback) `FEEDBACK_TO` in `.env.local`. Gmail requires an App Password; do not use the normal account password.
 
 ## Reference links
 

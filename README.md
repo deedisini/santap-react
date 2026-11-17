@@ -28,18 +28,14 @@ Gunakan NIM `23101001` untuk contoh baru, `23101002` untuk antrean awal, dan `23
 1. Salin [.env.example](.env.example) ke `.env.local` jika berkas lokal belum ada. Jangan menimpa konfigurasi yang sudah digunakan.
 2. Isi konfigurasi Firebase. Aktifkan autentikasi email/password dan pasang [Firestore rules](firestore.rules). Simpan kredensial Firebase Admin di luar repository.
 3. Buat Admin pertama mengikuti [panduan akun](docs/setup/ACCOUNT_SETUP.md). Akun operasional harus mempunyai profil Firestore dan role yang sah. Mahasiswa membutuhkan NIM dan profil lengkap. [Daftar akun demo historis](docs/setup/AKUN_DEMO.md) bukan jaminan akun masih aktif; kata sandi tidak disimpan di repository.
-4. Untuk Firestore sebagai data operasional, kosongkan `VITE_SQL_API_URL`. Untuk MySQL/MariaDB, isi URL tersebut, siapkan database, dan ikuti [panduan SQL](docs/setup/MYSQL_SETUP.md).
-5. Jalankan terminal terpisah:
+4. Jalankan terminal terpisah:
 
 ```powershell
 npm run email-server
-npm run sql-server  # hanya untuk mode SQL
 npm run dev
 ```
 
-Service API port 8787 menangani akun, konfigurasi, operasi Firestore, email, dan push. SQL API port 8788 menangani data operasional SQL. Semua API tetap membutuhkan Firebase ID token. SMTP dan VAPID hanya diperlukan untuk email serta push nyata. Demo tidak mengirim pesan.
-
-Database baru menggunakan [schema.sql](server/schema.sql), yang membuat lima tabel dan data contoh. Database lama menggunakan [migrasi v1.2](server/migrate-v1.2.sql) setelah meninjau duplikasi; jangan menjalankan migrasi yang sama dua kali. [Seed tambahan](server/demo-seed.sql) dan [reset demo](server/demo-reset.sql) hanya untuk database pengujian yang memang boleh diubah.
+Service API port 8787 menangani akun, konfigurasi, operasi Firestore, email, dan push. Semua API tetap membutuhkan Firebase ID token. SMTP dan VAPID hanya diperlukan untuk email serta push nyata. Demo tidak mengirim pesan. Materi MySQL/MariaDB untuk tugas Database berada terpisah di [database-assignment/](database-assignment/), bukan bagian dari runtime SANTAP.
 
 ## Pemeriksaan dan build
 
@@ -57,11 +53,12 @@ npm run preview
 
 ```text
 src/          React: halaman, komponen, akses API, gaya, data demo
-server/       API, validasi, SQL, bootstrap akun, dan pengujian
+server/       API Firebase, validasi, bootstrap akun, email, push, dan pengujian
 shared/       Aturan waktu WITA dan format QR bersama
 public/       Service worker notifikasi
 docs/         SRS, model, setup, worksheet, presentasi, arsip
 Penilaian/    Rubrik asli, inisiasi, elisitasi, checklist final
+database-assignment/  Materi MySQL/MariaDB terpisah untuk tugas Database
 tools/        Skrip dokumentasi dan pemeriksaan tautan
 .vscode/      Task pengembangan editor
 ```

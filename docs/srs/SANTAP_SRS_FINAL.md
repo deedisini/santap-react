@@ -18,7 +18,7 @@ Perangkat yang dibutuhkan adalah browser komputer/ponsel, kamera opsional, dan j
 
 ## 3. Dependensi, batasan, dan kelayakan
 
-React/Vite menyediakan antarmuka. Firebase Authentication menerbitkan token, Firestore menyimpan profil role, konfigurasi, dan push. Data operasional memakai Firestore atau MySQL/MariaDB, dipilih melalui konfigurasi. Node.js memverifikasi token dan role serta menjalankan transaksi. MySQL bukan pengganti Firebase Authentication. Data operasional kedua mode tidak direplikasi otomatis.
+React/Vite menyediakan antarmuka. Firebase Authentication menerbitkan token, dan Cloud Firestore menyimpan profil role, data operasional, konfigurasi, serta push. Node.js memverifikasi token dan role, menjalankan transaksi Firestore, serta menyediakan endpoint email. MySQL/MariaDB berada di luar scope SANTAP dan dipelihara sebagai tugas Database terpisah.
 
 Kamera dan push memerlukan secure context. Email memerlukan SMTP; push memerlukan permission, VAPID, Firebase Messaging, dan worker aktif. Push dapat gagal dan selalu mempunyai fallback dalam aplikasi. Pemeriksaan token saat ini memvalidasi tanda tangan dan kedaluwarsa; pemeriksaan pencabutan token Firebase tidak diaktifkan. Perubahan role tetap dibaca dari profil server setiap permintaan.
 
@@ -117,7 +117,7 @@ BR-08: Data offline belum final. Sinkronisasi dari tanggal sebelumnya atau perio
 
 ### UC-09 Kelola akun dan profil
 
-**Aktor:** Admin. **Prakondisi:** akun Admin terautentikasi. **Alur:** isi identitas dan role untuk membuat akun, validasi field, simpan akun/profil, buat undangan; untuk profil yang ada, pilih NIM dan simpan nama/fakultas/residence. **Pascakondisi:** profil tersedia atau diperbarui. **Alternatif:** NIM duplikat/unknown/input kosong ditolak. SMTP gagal mempertahankan akun yang sudah dibuat dan menawarkan kirim ulang. Penyimpanan profil lintas SQL/Firestore menggunakan kompensasi, bukan transaksi terdistribusi yang menjamin atomicity pada semua kegagalan jaringan.
+**Aktor:** Admin. **Prakondisi:** akun Admin terautentikasi. **Alur:** isi identitas dan role untuk membuat akun, validasi field, simpan akun/profil di Firestore, buat undangan; untuk profil yang ada, pilih NIM dan simpan nama/fakultas/residence. **Pascakondisi:** profil tersedia atau diperbarui. **Alternatif:** NIM duplikat/unknown/input kosong ditolak. SMTP gagal mempertahankan akun yang sudah dibuat dan menawarkan kirim ulang. Batch Firestore menjaga pembaruan profil tetap atomik.
 
 ### UC-10 Rating dan saran
 
@@ -125,11 +125,11 @@ BR-08: Data offline belum final. Sinkronisasi dari tanggal sebelumnya atau perio
 
 ### UC-11 Konfigurasi operasional
 
-**Aktor:** Admin. **Prakondisi:** profil Admin. **Alur:** ubah jam per periode dan pengaturan tema, validasi format dan overlap, simpan konfigurasi terpusat. **Pascakondisi:** operasi server dan pembacaan klien menggunakan jadwal valid. **Alternatif:** interval tidak valid/tumpang tindih ditolak; pengguna selain Admin ditolak. Mode demo mengubah state lokal saja. Pada mode SQL, klien perlu memuat ulang konfigurasi; server membaca konfigurasi pada setiap operasi.
+**Aktor:** Admin. **Prakondisi:** profil Admin. **Alur:** ubah jam per periode dan pengaturan tema, validasi format dan overlap, simpan konfigurasi terpusat di Firestore. **Pascakondisi:** operasi server dan pembacaan klien menggunakan jadwal valid. **Alternatif:** interval tidak valid/tumpang tindih ditolak; pengguna selain Admin ditolak. Mode demo mengubah state lokal saja.
 
 ## 7. Model dan implementasi
 
-Model utama berada di [models](../models/): [use case](../models/SANTAP_V1_2_USE_CASE.puml), [activity pengambilan](../models/SANTAP_V1_2_MEAL_ACTIVITY.puml), [activity penutupan](../models/SANTAP_V1_2_CLOSING_ACTIVITY.puml), [activity antrean](../models/SANTAP_V1_2_QUEUE_ACTIVITY.puml), [sequence pengambilan](../models/SANTAP_V1_2_MEAL_SEQUENCE.puml), [sequence antrean](../models/SANTAP_V1_2_QUEUE_SEQUENCE.puml), [sequence profil](../models/SANTAP_V1_2_PROFILE_SEQUENCE.puml), [class](../models/SANTAP_V1_2_CLASS.puml), dan [ERD](../models/SANTAP_V1_2_ERD.puml).
+Model utama berada di [models](../models/): [use case](../models/SANTAP_V1_2_USE_CASE.puml), [activity pengambilan](../models/SANTAP_V1_2_MEAL_ACTIVITY.puml), [activity penutupan](../models/SANTAP_V1_2_CLOSING_ACTIVITY.puml), [activity antrean](../models/SANTAP_V1_2_QUEUE_ACTIVITY.puml), [sequence pengambilan](../models/SANTAP_V1_2_MEAL_SEQUENCE.puml), [sequence antrean](../models/SANTAP_V1_2_QUEUE_SEQUENCE.puml), [sequence profil](../models/SANTAP_V1_2_PROFILE_SEQUENCE.puml), [class](../models/SANTAP_V1_2_CLASS.puml), dan [conceptual/logical ERD](../models/SANTAP_V1_2_CONCEPTUAL_ERD.puml). Physical SQL ERD dipelihara bersama materi [tugas Database](../../database-assignment/).
 
 Class diagram menggambarkan model domain; implementasi JavaScript menggunakan objek dan fungsi modul. Operasi domain dipetakan secara eksplisit dalam [kamus data](../KAMUS_DATA.md), bukan klaim adanya deklarasi kelas JavaScript yang sama. Tautan antarstore adalah relasi logis, bukan FK SQL. Relasi include/extend/generalization tidak dipaksakan jika hanya mengulang prasyarat login atau pilihan metode input.
 
@@ -152,6 +152,6 @@ Enam layar merupakan enam tampilan/panel fungsional, bukan enam URL. Uji DOM men
 
 ## 10. Referensi dan AI
 
-Sumber proyek: [panduan dosen](../references/01_Panduan_Final_Project_SAD.docx), enam rubrik pada [Penilaian](../../Penilaian/), sumber KINTARA dan SANTAP v1.1 pada folder ini, serta dokumen inisiasi/elisitasi. Rujukan teknis: [React](https://react.dev/), [Firebase Authentication](https://firebase.google.com/docs/auth), [transaksi Firestore](https://firebase.google.com/docs/firestore/manage-data/transactions), [MySQL](https://dev.mysql.com/doc/), dan [PlantUML](https://plantuml.com/).
+Sumber proyek: [panduan dosen](../references/01_Panduan_Final_Project_SAD.docx), enam rubrik pada [Penilaian](../../Penilaian/), sumber KINTARA dan SANTAP v1.1 pada folder ini, serta dokumen inisiasi/elisitasi. Rujukan teknis: [React](https://react.dev/), [Firebase Authentication](https://firebase.google.com/docs/auth), [transaksi Firestore](https://firebase.google.com/docs/firestore/manage-data/transactions), dan [PlantUML](https://plantuml.com/).
 
 AI membantu audit kode, penyusunan uji, perbaikan bug, penataan folder, dan draft dokumentasi. Hasil pengujian hanya diklaim jika benar-benar dijalankan. Tim harus memeriksa keluaran, melampirkan bukti elisitasi/persetujuan asli, menyelaraskan template Word/Excel bila diwajibkan, serta mengisi kontribusi anggota sebelum pengumpulan.

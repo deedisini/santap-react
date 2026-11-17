@@ -65,7 +65,7 @@ Proses layanan membutuhkan verifikasi identitas mahasiswa dan pencatatan pengamb
 | Dimensi | Kondisi as-is | Rancangan SANTAP | Gap dan respons |
 |---|---|---|---|
 | Information | Data mahasiswa, status asrama, dan pengambilan belum selalu berada dalam tampilan operasional yang sama. | Profil mahasiswa, status asrama, periode makan, antrean, dan catatan pengambilan disimpan terstruktur. | Sedang; admin harus memastikan profil dan NIM lengkap sebelum layanan. |
-| Technology | Perangkat staff dapat memiliki kamera/scanner dan koneksi yang bervariasi. | Web React dengan QR scanner, input NIM cadangan, Firebase, serta API MySQL untuk demo relasional. | Sedang; input NIM dan pencatatan lokal sementara menjadi mitigasi gangguan kamera/jaringan. |
+| Technology | Perangkat staff dapat memiliki kamera/scanner dan koneksi yang bervariasi. | Web React dengan QR scanner, input NIM cadangan, Firebase/Firestore, serta API Node untuk operasi server, email, dan push. | Sedang; input NIM dan pencatatan lokal sementara menjadi mitigasi gangguan kamera/jaringan. |
 | Processes | Validasi pengambilan dan antrean berisiko tidak seragam bila dilakukan manual. | Alur identifikasi, cek periode aktif, cek duplikasi, simpan catatan, lalu perbarui antrean. | Sedang; SOP petugas dan uji skenario diperlukan. |
 | Objectives and values | Kecepatan layanan perlu seimbang dengan keakuratan dan keadilan akses. | Sistem memprioritaskan validasi cepat, pencegahan duplikasi, dan keterlacakan. | Rendah-sedang; aturan hak makan dan pengecualian harus disepakati pengelola. |
 | Staffing and skills | Tidak semua petugas memiliki kemampuan teknis yang sama. | Antarmuka ringkas dengan pemindaian QR dan input NIM. | Sedang; perlu briefing singkat dan panduan operasional. |
@@ -144,12 +144,11 @@ Model yang dipilih adalah **Agile Iterative Incremental**. Setiap iterasi mengha
 | Antarmuka | React dan Vite | Membuat antarmuka web responsif dengan iterasi cepat. |
 | Autentikasi dan data operasional | Firebase Authentication dan Firestore | Mendukung autentikasi berbasis role serta pembaruan data operasional. |
 | QR dan kamera | `@zxing/browser` dan Web Camera API | Mendukung pembacaan QR dengan webcam atau kamera ponsel yang terhubung ke Windows. |
-| Database relasional untuk demonstrasi akademik | MySQL/MariaDB | Menunjukkan tabel, primary key, foreign key, relasi, dan query SQL. |
-| API SQL demo | Node.js, HTTP, dan `mysql2` | Menghubungkan prototype dengan database relasional saat mode SQL diaktifkan. |
+| Database relasional untuk demonstrasi akademik | MySQL/MariaDB | Dipisahkan ke [database-assignment](../database-assignment/) untuk tugas Database; bukan backend SANTAP. |
 | Pemodelan | PlantUML dan diagram use case/ERD | Mendokumentasikan proses dan struktur data secara dapat direvisi. |
 | Kolaborasi dan pengujian | Git repository, VS Code, npm, PowerShell | Menjaga kode, pembagian kerja, dan pengujian terpusat. |
 
-**Catatan arsitektur:** Firebase digunakan untuk operasi aplikasi yang aktif. MySQL/MariaDB digunakan sebagai implementasi dan demonstrasi basis data relasional untuk kebutuhan tugas; SQL API dapat diaktifkan untuk demo tersebut.
+**Catatan arsitektur:** Firebase Authentication dan Cloud Firestore digunakan untuk seluruh operasi aplikasi yang aktif. MySQL/MariaDB dipelihara sebagai program/tugas Database terpisah dan tidak dapat diaktifkan dari runtime SANTAP.
 
 ## 1.10 Pembagian peran dan ruang kerja bersama
 
@@ -158,7 +157,7 @@ Model yang dipilih adalah **Agile Iterative Incremental**. Setiap iterasi mengha
 | Koordinator atau analis | Menjaga scope, stakeholder, backlog, dokumen inisiasi, dan komunikasi kelompok. |
 | Analis proses dan UI | Memetakan as-is/to-be, user story, use case, wireframe, dan skenario uji. |
 | Pengembang frontend | Mengerjakan antarmuka React, login, dashboard role, QR/NIM, dan antrean. |
-| Pengembang data/backend | Menjaga Firebase, skema MySQL, SQL API, validasi data, serta seed demo. |
+| Pengembang data/backend | Menjaga Firebase/Firestore, API server, validasi data, email, push, serta aturan keamanan. |
 | QA dan dokumentasi | Menyusun kasus uji, menguji alur, mencatat temuan, serta menyiapkan demo/presentasi. |
 
 ### Penugasan anggota dan bukti kontribusi
@@ -168,10 +167,10 @@ Model yang dipilih adalah **Agile Iterative Incremental**. Setiap iterasi mengha
 | *Isi nama anggota 1* | Koordinator/analis | `DOKUMEN_INISIASI_SANTAP.md`, backlog/keputusan | Diisi tim |
 | *Isi nama anggota 2* | Analis proses dan UI | SRS, use case, activity diagram | Diisi tim |
 | *Isi nama anggota 3* | Pengembang frontend | `src/` dan bukti uji antarmuka | Diisi tim |
-| *Isi nama anggota 4* | Pengembang data/backend | `server/`, Firebase, dan skema SQL | Diisi tim |
+| *Isi nama anggota 4* | Pengembang data/backend | `server/`, Firebase, email/push, dan aturan keamanan | Diisi tim |
 | *Isi nama anggota 5* | QA dan dokumentasi | kasus uji, temuan, dan materi demo | Diisi tim |
 
-Ruang kerja bersama menggunakan repository proyek `santap-react` sebagai sumber kode dan dokumentasi. Struktur minimum yang dipakai adalah `src/` untuk aplikasi React, `server/` untuk API dan SQL, `tools/` untuk utilitas, serta dokumen `.md`, `.puml`, dan `.docx` di akar proyek. Setiap perubahan kebutuhan dicatat pada backlog atau issue agar keputusan kelompok dapat ditelusuri.
+Ruang kerja bersama menggunakan repository proyek `santap-react` sebagai sumber kode dan dokumentasi. Struktur minimum yang dipakai adalah `src/` untuk aplikasi React, `server/` untuk API Firebase/email/push, `database-assignment/` untuk materi Database terpisah, `tools/` untuk utilitas, serta dokumen `.md`, `.puml`, dan `.docx` di akar proyek. Setiap perubahan kebutuhan dicatat pada backlog atau issue agar keputusan kelompok dapat ditelusuri.
 
 ## Persetujuan dan tindak lanjut
 

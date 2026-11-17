@@ -3,10 +3,9 @@ import QrScanner from './QrScanner.jsx';
 import { loadPending, storePending } from '../lib/pendingScans.js';
 import { localParts, periodWindow } from '../../shared/operations.js';
 import { serviceRequest } from '../lib/serviceApi.js';
-import { createSqlMealRecord } from '../lib/sqlApi.js';
 import { parseStudentIdentity } from '../../shared/serviceQr.js';
 
-export default function PendingScans({ user, demoMode, students, periodId, config, useSqlData, onSaved }) {
+export default function PendingScans({ user, demoMode, students, periodId, config, onSaved }) {
   const [rows, setRows] = useState(() => loadPending(localStorage, user.uid));
   const [nim, setNim] = useState(''), [scanning, setScanning] = useState(false), [message, setMessage] = useState(''), [busy, setBusy] = useState(false);
   const synchronizing = useRef(false);
@@ -37,8 +36,7 @@ export default function PendingScans({ user, demoMode, students, periodId, confi
           continue;
         }
         try {
-          if (useSqlData) await createSqlMealRecord({ nim: row.nim, periodId: row.periodId, expectedDate: row.date }, user);
-          else await serviceRequest('/api/operations/meal', { nim: row.nim, periodId: row.periodId, expectedDate: row.date }, user);
+          await serviceRequest('/api/operations/meal', { nim: row.nim, periodId: row.periodId, expectedDate: row.date }, user);
           pending = pending.filter(item => item.id !== row.id);
         } catch (error) {
           pending = pending.map(item => item.id === row.id ? { ...item, status: error.message } : item);
@@ -54,7 +52,7 @@ export default function PendingScans({ user, demoMode, students, periodId, confi
     window.addEventListener('online', online);
     if (navigator.onLine && rows.length) online();
     return () => window.removeEventListener('online', online);
-  }, [user, useSqlData, config, demoMode]);
+  }, [user, config, demoMode]);
   return <section className="panel"><h2>Identifikasi sementara saat jaringan bermasalah</h2><p>Data disimpan di perangkat dan belum membuktikan pengambilan. Server memvalidasi ulang saat sinkronisasi. Identifikasi dari periode yang sudah berakhir memerlukan peninjauan petugas.</p><form className="input-row" onSubmit={e => { e.preventDefault(); stage(nim); }}><label>NIM<input value={nim} onChange={e => setNim(e.target.value)} required disabled={busy} /></label><button className="button secondary" disabled={busy || rows.length >= 100}>Simpan sementara</button><button type="button" className="button secondary" disabled={busy} onClick={() => setScanning(true)}>Scan sementara</button></form>{scanning && <QrScanner onScan={value => { setScanning(false); stage(value); }} onClose={() => setScanning(false)} />}
     {rows.map(row => <div className="pending-row" key={row.id}><span>{row.nim} · {row.date} · {config.schedules[row.periodId]?.label}<br />{row.status}</span><button className="button secondary" disabled={busy} onClick={() => persist(rows.filter(item => item.id !== row.id))}>Hapus dari perangkat</button></div>)}<button className="button primary" disabled={busy || !rows.length || demoMode} onClick={sync}>{busy ? 'Menyinkronkan...' : 'Sinkronkan sekarang'}</button><p role="status">{message}</p>
   </section>;

@@ -3,7 +3,6 @@ import { getMessaging } from 'firebase-admin/messaging';
 import { firebase, requireRole, fail } from './auth.js';
 import { readOperations } from './operations.js';
 import { periodWindow } from '../shared/operations.js';
-import { sqlPool } from './database.js';
 
 export async function registerPush(db, identity, data) {
   requireRole(identity, ['Supervisor', 'Head']);
@@ -17,20 +16,14 @@ export async function registerPush(db, identity, data) {
   return { ok: true };
 }
 
-export async function dispatchClosingPush(db, messaging, now = new Date(), pool = null) {
+export async function dispatchClosingPush(db, messaging, now = new Date()) {
   const config = await readOperations(db);
   const windows = Object.keys(config.schedules).map(id => periodWindow(id, now, config)).filter(window => window.warning);
   if (!windows.length) return;
   const subscriptions = await db.collection('pushSubscriptions').get();
   for (const window of windows) {
-    let pausedDate;
-    if (pool) {
-      const [periods] = await pool.execute('SELECT paused_date AS pausedDate FROM meal_periods WHERE id = ?', [window.id]);
-      pausedDate = periods[0]?.pausedDate;
-    } else {
-      const period = await db.collection('mealPeriods').doc(window.id).get();
-      pausedDate = period.data()?.pausedDate;
-    }
+    const period = await db.collection('mealPeriods').doc(window.id).get();
+    const pausedDate = period.data()?.pausedDate;
     if (pausedDate === window.date) continue;
     for (const subscription of subscriptions.docs) {
       const { uid, token } = subscription.data();
@@ -55,7 +48,7 @@ export function startPushWorker() {
   const tick = async () => {
     if (running) return;
     running = true;
-    try { const { db } = firebase(); await dispatchClosingPush(db, getMessaging(), new Date(), process.env.VITE_SQL_API_URL?.trim() ? sqlPool() : null); }
+    try { const { db } = firebase(); await dispatchClosingPush(db, getMessaging(), new Date()); }
     catch (error) { console.error('Closing push worker:', error.message); }
     finally { running = false; }
   };

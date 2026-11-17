@@ -100,7 +100,7 @@ Proposed models are separate so historical diagrams and their different UC numbe
 - [Use case v1.2](../models/SANTAP_V1_2_USE_CASE.puml) preserves v1.1 UC-01 through UC-08 and adds UC-09/10/11. QR, barcode and NIM remain alternate flows of UC-04.
 - [Meal activity v1.2](../models/SANTAP_V1_2_MEAL_ACTIVITY.puml) adds server-time validation, atomic recording and pending-identification alternatives.
 - [Closing activity v1.2](../models/SANTAP_V1_2_CLOSING_ACTIVITY.puml) adds the ten-minute trigger, role check, event deduplication and fallback.
-- [ERD extension v1.2](../models/SANTAP_V1_2_ERD.puml) adds settings, same-day pause, anonymous queue projection, push subscriptions and delivery claims. Settings/push are Firestore documents, not additional MySQL tables.
+- [Conceptual ERD extension v1.2](../models/SANTAP_V1_2_CONCEPTUAL_ERD.puml) adds settings, same-day pause, anonymous queue projection, push subscriptions and delivery claims. The relational SQL variant is preserved separately in [database-assignment](../../database-assignment/).
 
 Reminder becomes a derived temporal event with delivery claims, refining the earlier conceptual Reminder entity. No menu, payment, stock, procurement or kitchen ERP module is added.
 

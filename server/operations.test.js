@@ -3,7 +3,6 @@ import assert from 'node:assert/strict';
 import { DEFAULT_OPERATIONS, TIME_ZONE, activePeriod, assertServing, isSabbath, localParts, periodWindow, validateOperations } from '../shared/operations.js';
 import { buildNotifications } from '../src/utils/closingNotifications.js';
 import { loadPending, storePending } from '../src/lib/pendingScans.js';
-import { sqlOperation } from './sqlOperations.js';
 import { firestoreOperation } from './operations.js';
 
 const at = value => new Date(`${value}+08:00`);
@@ -80,48 +79,8 @@ test('pending scans survive reload and are isolated by authenticated UID', () =>
   values.set('santap-pending-scans-alice', '{broken');
   assert.deepEqual(loadPending(storage, 'alice'), []);
 });
-function sqlMock({ duplicate = false } = {}) {
-  const calls = [];
-  const connection = {
-    async beginTransaction() {}, async commit() { calls.push('commit'); }, async rollback() { calls.push('rollback'); }, release() {},
-    async execute(sql, params) {
-      calls.push([sql, params]);
-      if (sql.startsWith('SELECT id, paused_date')) return [[{ id: 'morning', pausedDate: null }]];
-      if (sql.startsWith('SELECT * FROM students')) return [[{ nim: '123', name: 'Student', faculty: 'Science', email: 'test@example.com', residence: 'Non-penghuni' }]];
-      if (sql.startsWith('SELECT id FROM meal_records')) return [duplicate ? [{ id: 1 }] : []];
-      if (sql.startsWith('SELECT id FROM queues')) return [[]];
-      return [{ insertId: 7, affectedRows: 1 }];
-    },
-  };
-  return { calls, getConnection: async () => connection };
-}
-test('SQL backend rejects closed and duplicate requests before inserting a meal', async () => {
-  const actor = { role: 'Staff', uid: 'staff', name: 'Staff' };
-  const data = { nim: '123', periodId: 'morning' };
-  const closed = sqlMock();
-  await assert.rejects(sqlOperation(closed, actor, 'meal', data, DEFAULT_OPERATIONS, at('2026-11-12T08:00:00')), { code: 'period_closed' });
-  const duplicate = sqlMock({ duplicate: true });
-  await assert.rejects(sqlOperation(duplicate, actor, 'meal', data, DEFAULT_OPERATIONS, at('2026-11-12T07:00:00')), { code: 'duplicate_meal' });
-  for (const pool of [closed, duplicate]) assert.equal(pool.calls.some(call => Array.isArray(call) && call[0].startsWith('INSERT')), false);
-});
-test('SQL persists authoritative WITA date, period label and staff identity', async () => {
-  const pool = sqlMock();
-  const result = await sqlOperation(pool, { role: 'Staff', uid: 'verified', name: 'Verified' }, 'meal', { nim: '123', periodId: 'morning', period: 'Forged', staffName: 'Forged' }, DEFAULT_OPERATIONS, at('2026-11-12T07:00:00'));
-  assert.equal(result.period, 'Pagi');
-  const insert = pool.calls.find(call => Array.isArray(call) && call[0].startsWith('INSERT'));
-  assert.deepEqual(insert[1].slice(4, 6), ['verified', 'Verified']);
-  assert.deepEqual(insert[1].slice(-2), ['2026-11-12', '07:00:00']);
-});
-test('SQL rejects pending identifications from a previous WITA date', async () => {
-  const pool = sqlMock();
-  await assert.rejects(sqlOperation(pool, { role: 'Staff', uid: 'staff' }, 'meal', { nim: '123', periodId: 'morning', expectedDate: '2026-11-11' }, DEFAULT_OPERATIONS, at('2026-11-12T07:00:00')), { code: 'expired_pending' });
-  assert.equal(pool.calls.some(call => Array.isArray(call) && call[0].startsWith('INSERT')), false);
-});
 test('students cannot record meals, cancel queues or join for another NIM', async () => {
   const actor = { role: 'Mahasiswa', uid: 'student', nim: '123' };
-  for (const action of ['meal', 'cancel', 'period']) {
-    await assert.rejects(sqlOperation(null, actor, action, {}, DEFAULT_OPERATIONS), { status: 403 });
-    await assert.rejects(firestoreOperation(null, actor, action, {}), { status: 403 });
-  }
+  for (const action of ['meal', 'cancel', 'period']) await assert.rejects(firestoreOperation(null, actor, action, {}, DEFAULT_OPERATIONS), { status: 403 });
   await assert.rejects(firestoreOperation(null, actor, 'queue', { nim: '456' }), { status: 403 });
 });

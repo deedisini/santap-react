@@ -1,9 +1,31 @@
 import { useEffect, useRef, useState } from "react";
-import { BrowserMultiFormatReader } from "@zxing/browser";
+import { BarcodeFormat, BrowserCodeReader, BrowserMultiFormatReader } from "@zxing/browser";
+
+const SCAN_FORMATS = [
+  BarcodeFormat.QR_CODE,
+  BarcodeFormat.CODE_128,
+  BarcodeFormat.CODE_39,
+  BarcodeFormat.CODE_93,
+  BarcodeFormat.CODABAR,
+  BarcodeFormat.EAN_13,
+  BarcodeFormat.EAN_8,
+  BarcodeFormat.ITF,
+  BarcodeFormat.UPC_A,
+  BarcodeFormat.UPC_E,
+  BarcodeFormat.DATA_MATRIX,
+  BarcodeFormat.PDF_417,
+  BarcodeFormat.AZTEC,
+];
+
+function cameraError(error) {
+  if (error?.name === "NotAllowedError" || error?.name === "SecurityError") return "Izin kamera ditolak. Izinkan kamera untuk localhost lalu buka pemindai lagi.";
+  if (error?.name === "NotFoundError" || error?.name === "OverconstrainedError") return "Kamera yang dipilih tidak tersedia. Pilih kamera lain atau gunakan input NIM.";
+  if (error?.name === "NotReadableError") return "Kamera sedang digunakan aplikasi lain. Tutup aplikasi tersebut lalu coba lagi.";
+  return "Pembaca tidak dapat dimulai. Pastikan kamera tersedia dan gunakan HTTPS atau localhost.";
+}
 
 export default function QrScanner({ onScan, onClose, title = "Scan QR atau barcode", helper = "Arahkan kamera ke QR identitas mahasiswa atau barcode kartu." }) {
   const videoRef = useRef(null);
-  const streamRef = useRef(null);
   const scannerControlsRef = useRef(null);
   const onScanRef = useRef(onScan);
   const [error, setError] = useState("");
@@ -11,62 +33,66 @@ export default function QrScanner({ onScan, onClose, title = "Scan QR atau barco
   const [selectedCamera, setSelectedCamera] = useState("");
   useEffect(() => { onScanRef.current = onScan; }, [onScan]);
   useEffect(() => {
-    let timer;
     let active = true;
     let scanned = false;
-    const constraints = { audio: false, video: selectedCamera ? { deviceId: { exact: selectedCamera } } : { facingMode: { ideal: "environment" } } };
+    setError("");
+    scannerControlsRef.current?.stop();
+    scannerControlsRef.current = null;
 
-    async function loadCameras() {
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      if (active) setCameras(devices.filter(device => device.kind === "videoinput"));
-    }
+    const constraints = {
+      audio: false,
+      video: selectedCamera
+        ? { deviceId: { exact: selectedCamera }, width: { ideal: 1920 }, height: { ideal: 1080 } }
+        : { facingMode: { ideal: "environment" }, width: { ideal: 1920 }, height: { ideal: 1080 } },
+    };
 
     function finish(value) {
-      if (!active || scanned) return;
+      const text = typeof value === "string" ? value.trim() : "";
+      if (!active || scanned || !text) return;
       scanned = true;
       scannerControlsRef.current?.stop();
-      onScanRef.current(value);
-    }
-
-    async function startFallbackScanner() {
-      try {
-        const reader = new BrowserMultiFormatReader();
-        const controls = await reader.decodeFromConstraints(constraints, videoRef.current, (result) => {
-          if (result) finish(result.getText());
-        });
-        scannerControlsRef.current = controls;
-        await loadCameras();
-        if (!active || scanned) controls.stop();
-      } catch {
-        if (active) setError("Kamera tidak tersedia atau izin kamera ditolak.");
-      }
+      onScanRef.current(text);
     }
 
     async function start() {
-      setError("");
       if (!navigator.mediaDevices?.getUserMedia) {
         setError("Browser ini tidak mendukung akses kamera. Gunakan browser modern atau input NIM sebagai cadangan.");
         return;
       }
-      if (!("BarcodeDetector" in window)) return startFallbackScanner();
       try {
-        const stream = await navigator.mediaDevices.getUserMedia(constraints);
-        if (!active) { stream.getTracks().forEach(track => track.stop()); return; }
-        streamRef.current = stream;
-        videoRef.current.srcObject = streamRef.current; await videoRef.current.play();
-        await loadCameras();
-        const detector = new window.BarcodeDetector({ formats: ["qr_code", "code_128", "code_39", "ean_13"] });
-        async function read() { try { const codes = await detector.detect(videoRef.current); if (codes[0]?.rawValue) return finish(codes[0].rawValue); } catch { /* camera frames can be unavailable between devices */ } if (active && !scanned) timer = requestAnimationFrame(read); }
-        read();
-      } catch {
-        streamRef.current?.getTracks().forEach(track => track.stop());
-        streamRef.current = null;
-        if (!active) return;
-        startFallbackScanner();
+        const reader = new BrowserMultiFormatReader();
+        reader.possibleFormats = SCAN_FORMATS;
+        const controls = await reader.decodeFromConstraints(
+          constraints,
+          videoRef.current,
+          result => { if (result) finish(result.getText()); },
+        );
+        if (!active) { controls.stop(); return; }
+        scannerControlsRef.current = controls;
+        try {
+          const devices = await BrowserCodeReader.listVideoInputDevices();
+          if (active) setCameras(devices);
+        } catch {
+          // The active stream can still decode even when device labels cannot be listed.
+        }
+      } catch (scanError) {
+        if (active) setError(cameraError(scanError));
       }
     }
+
     start();
-    return () => { active = false; if (timer) cancelAnimationFrame(timer); scannerControlsRef.current?.stop(); streamRef.current?.getTracks().forEach(track => track.stop()); };
+    return () => {
+      active = false;
+      scannerControlsRef.current?.stop();
+      scannerControlsRef.current = null;
+    };
   }, [selectedCamera]);
-  return <div className="scanner-panel"><div className="scanner-top"><b>{title}</b><button type="button" className="button small" onClick={onClose}>Tutup</button></div>{cameras.length > 1 && <label className="camera-picker">Kamera<select value={selectedCamera} onChange={event => setSelectedCamera(event.target.value)}><option value="">Pilih otomatis</option>{cameras.map((camera, index) => <option key={camera.deviceId} value={camera.deviceId}>{camera.label || `Kamera ${index + 1}`}</option>)}</select></label>}<video ref={videoRef} className="scanner-video" muted playsInline />{error && <div className="notice error-notice">{error}</div>}<p className="helper-text">{helper}</p></div>;
+
+  return <div className="scanner-panel">
+    <div className="scanner-top"><b>{title}</b><button type="button" className="button small" onClick={onClose}>Tutup</button></div>
+    {cameras.length > 1 && <label className="camera-picker">Kamera<select value={selectedCamera} onChange={event => setSelectedCamera(event.target.value)}><option value="">Pilih otomatis</option>{cameras.map((camera, index) => <option key={camera.deviceId} value={camera.deviceId}>{camera.label || `Kamera ${index + 1}`}</option>)}</select></label>}
+    <video ref={videoRef} className="scanner-video" muted autoPlay playsInline />
+    {error && <div className="notice error-notice">{error}</div>}
+    <p className="helper-text">{helper} Pembaca QR dan barcode aktif.</p>
+  </div>;
 }

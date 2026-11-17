@@ -2,9 +2,8 @@ import http from 'node:http';
 import { pathToFileURL } from 'node:url';
 import { authenticate, firebase, requireRole, fail } from './auth.js';
 import { body, cors, json, errorResponse } from './http.js';
-import { sendEmail, invite, validEmail } from './email.js';
+import { sendEmail, invite, validEmail, emailConfiguration } from './email.js';
 import { createAccount } from './accounts.js';
-import { sqlPool } from './database.js';
 import { firestoreOperation, readOperations } from './operations.js';
 import { validateOperations } from '../shared/operations.js';
 import { updateStudentProfile } from './profiles.js';
@@ -34,14 +33,14 @@ export function createHandler(deps = {}) {
       }
       if (path === '/api/admin/students/update') {
         requireRole(identity, ['Admin']);
-        await updateStudentProfile(await body(request), services.db, deps.pool ?? (process.env.VITE_SQL_API_URL?.trim() ? sqlPool() : null));
+        await updateStudentProfile(await body(request), services.db);
         return json(response, 200, { ok: true });
       }
       if (path === '/api/push/register') return json(response, 200, await registerPush(services.db, identity, await body(request)));
       if (path.startsWith('/api/operations/')) return json(response, 200, await firestoreOperation(services.db, identity, path.split('/').pop(), await body(request)));
       if (path === '/api/admin/users') {
         requireRole(identity, ['Admin']);
-        const result = await createAccount(await body(request), { ...services, pool: deps.pool ?? (process.env.VITE_SQL_API_URL?.trim() ? sqlPool() : null), sendInvite: (auth, uid) => invite(auth, uid, mail) });
+        const result = await createAccount(await body(request), { ...services, sendInvite: (auth, uid) => invite(auth, uid, mail) });
         return json(response, 201, result);
       }
       const retry = /^\/api\/admin\/users\/([^/]+)\/invite$/.exec(path);
@@ -78,6 +77,8 @@ export function createHandler(deps = {}) {
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const port = Number(process.env.EMAIL_SERVER_PORT || 8787);
   http.createServer(createHandler()).listen(port, '127.0.0.1', () => console.log(`SANTAP API: http://127.0.0.1:${port}`));
+  const email = emailConfiguration();
+  if (!email.ready) console.warn(`Email belum siap: lengkapi ${email.missing.join(', ')} di .env.local.`);
   if (process.env.ENABLE_PUSH_WORKER === 'true') startPushWorker();
 }
 
