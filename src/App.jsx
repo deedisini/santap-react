@@ -14,7 +14,7 @@ import { demoWeeklyHistory, initialQueue, initialRecords, mealPeriods, students 
 import { currentTime, todayKey } from "./utils/format";
 import { auth, db, firebaseEnabled, firebaseSetupHint } from "./lib/firebase";
 import { subscribeCollection, subscribeUserProfile } from "./lib/santap";
-import { createSqlMealRecord, createSqlQueueEntry, loadSqlData, sqlEnabled, updateSqlMealPeriod } from "./lib/sqlApi";
+import { createSqlMealRecord, createSqlQueueEntry, loadSqlConfig, loadSqlData, sqlEnabled, updateSqlMealPeriod } from "./lib/sqlApi";
 import { buildNotifications } from "./utils/closingNotifications";
 import { DEFAULT_OPERATIONS, activePeriod, periodWindow, isSabbath, TIME_ZONE } from '../shared/operations.js';
 import { serviceRequest } from './lib/serviceApi.js';
@@ -58,6 +58,9 @@ export default function App() {
   const useSqlData = firebaseEnabled && !demoSession && sqlEnabled;
   const useFirebaseData = firebaseEnabled && !demoSession && !useSqlData;
   const isFirebaseStudent = !isDemo && role === "Mahasiswa";
+  function handleRemoteError(error) {
+    setFirebaseError(error);
+  }
   const studentNim = isFirebaseStudent ? profile?.nim : selectedNim;
   const student = useMemo(() => isFirebaseStudent ? profile : studentList.find(s => s.nim === studentNim) || (isDemo ? studentList[0] : null), [isDemo, isFirebaseStudent, profile, studentList, studentNim]);
   const periodObject = periodList.find(p => p.id === periodId) || periodList[0];
@@ -71,8 +74,18 @@ export default function App() {
   useEffect(() => { if (scheduled?.id) setPeriodId(scheduled.id); }, [scheduled?.id]);
   useEffect(() => {
     if (isDemo || !user || !profileLoaded || !role) return;
-    return onSnapshot(doc(db, 'settings', 'operations'), snapshot => setConfig(snapshot.exists() ? snapshot.data() : DEFAULT_OPERATIONS), setFirebaseError);
-  }, [isDemo, user, profileLoaded, role]);
+    if (useSqlData) {
+      let active = true;
+      loadSqlConfig(user).then(nextConfig => {
+        if (active) { setConfig(nextConfig); setFirebaseError(""); }
+      }).catch(error => { if (active) handleRemoteError(error); });
+      return () => { active = false; };
+    }
+    return onSnapshot(doc(db, 'settings', 'operations'), snapshot => {
+      setConfig(snapshot.exists() ? snapshot.data() : DEFAULT_OPERATIONS);
+      setFirebaseError("");
+    }, setFirebaseError);
+  }, [isDemo, user, profileLoaded, role, useSqlData]);
 
   useEffect(() => {
     const timer = window.setInterval(() => setNow(new Date()), 1000);
@@ -87,8 +100,8 @@ export default function App() {
       loading = true;
       try {
         const data = await loadSqlData(user);
-        if (active) { setStudentList(data.students); setQueue(data.queues); setRecords(data.mealRecords); setPeriodList(data.mealPeriods); }
-      } catch (error) { if (active) setFirebaseError(error); }
+        if (active) { setStudentList(data.students); setQueue(data.queues); setRecords(data.mealRecords); setPeriodList(data.mealPeriods); setFirebaseError(""); }
+      } catch (error) { if (active) handleRemoteError(error); }
       finally { loading = false; }
     }, 10000);
     return () => { active = false; clearInterval(timer); };
@@ -96,20 +109,34 @@ export default function App() {
 
   useEffect(() => {
     if (!auth) return undefined;
-    return onAuthStateChanged(auth, nextUser => { if (!demoSession) setUser(nextUser); });
+    return onAuthStateChanged(auth, nextUser => {
+      if (!demoSession) {
+        setFirebaseError(''); setProfile(null); setRole(null); setProfileLoaded(false);
+        setStudentList([]); setQueue([]); setPublicQueue([]); setRecords([]); setPeriodList([]);
+        setConfig(DEFAULT_OPERATIONS); setUser(nextUser);
+      }
+    });
   }, [demoSession]);
   useEffect(() => {
-    if (!user || (!useFirebaseData && !useSqlData)) {
-      setProfile(null); setProfileError(""); setProfileLoaded(true);
-      if (isDemo) { setStudentList(students); setQueue(initialQueue); setRecords(initialRecords); setPeriodList(mealPeriods); setDataLoaded(true); setFirebaseError(""); }
-      return undefined;
-    }
+    if (!isDemo) return;
+    setStudentList(students); setQueue(initialQueue); setRecords(initialRecords);
+    setPeriodList(mealPeriods); setPublicQueue([]); setConfig(DEFAULT_OPERATIONS);
+    setDataLoaded(true); setFirebaseError('');
+  }, [isDemo]);
+  useEffect(() => {
+    if (isDemo || !user) { setProfile(null); setProfileError(''); setProfileLoaded(true); return; }
     setProfileLoaded(false);
-    setProfileError("");
+    setProfileError('');
+    return subscribeUserProfile(user.uid, next => {
+      setProfile(next); setProfileLoaded(true); setRole(next?.role || null);
+    }, error => { setProfile(null); setRole(null); setProfileError(error); setProfileLoaded(true); });
+  }, [user, isDemo]);
+  useEffect(() => {
+    if (isDemo || !user || !profileLoaded || !VALID_ROLES.includes(role)) return;
     let active = true;
     setDataLoaded(false);
-    setStudentList([]); setQueue([]); setRecords([]); setPeriodList([]);
-    const cleanups = [subscribeUserProfile(user.uid, next => { setProfile(next); setProfileLoaded(true); setRole(next?.role || null); }, error => { setProfileError(error); setProfileLoaded(true); setFirebaseError(error); })];
+    setStudentList([]); setQueue([]); setPublicQueue([]); setRecords([]); setPeriodList([]);
+    const cleanups = [];
     if (useFirebaseData && role) {
       if (role === "Mahasiswa" && profile?.nim) {
         // A student's own profile already contains the required identity and residence status.
@@ -122,7 +149,7 @@ export default function App() {
           subscribeCollection("mealRecords", setRecords, setFirebaseError, [where("nim", "==", profile.nim)]),
           subscribeCollection("mealPeriods", setPeriodList, setFirebaseError),
         );
-      } else {
+      } else if (role !== 'Mahasiswa') {
         cleanups.push(
           subscribeCollection("students", next => { setStudentList(next); setDataLoaded(true); }, error => { setFirebaseError(error); setDataLoaded(true); }),
           subscribeCollection("queues", setQueue, setFirebaseError),
@@ -139,10 +166,11 @@ export default function App() {
         setRecords(data.mealRecords);
         setPeriodList(data.mealPeriods);
         setDataLoaded(true);
-      }).catch(error => { if (active) { setFirebaseError(error); setDataLoaded(true); } });
+        setFirebaseError("");
+      }).catch(error => { if (active) { handleRemoteError(error); setDataLoaded(true); } });
     }
     return () => { active = false; cleanups.forEach(cleanup => cleanup()); };
-  }, [user, useFirebaseData, useSqlData, role, profile?.nim]);
+  }, [user, isDemo, useFirebaseData, useSqlData, role, profileLoaded, profile?.nim]);
   useEffect(() => {
     if (profile?.nim) setSelectedNim(profile.nim);
   }, [profile?.nim]);
@@ -162,7 +190,7 @@ export default function App() {
     if (currentQueue.some(q => q.nim === nim && q.status === "waiting")) return { ok: false, message: "Mahasiswa sudah berada dalam antrean." };
     if (useSqlData) { await createSqlQueueEntry({ nim, periodId }, user); await refreshSqlData(); }
     else if (useFirebaseData) await serviceRequest('/api/operations/queue', { nim, periodId }, user);
-    else setQueue(prev => [...prev, { id: Date.now(), nim, periodId, status: "waiting", joinedAt: currentTime() }]);
+    else setQueue(prev => [...prev, { id: crypto.randomUUID(), nim, periodId, date: todayKey(), status: "waiting", joinedAt: currentTime() }]);
     return { ok: true, message: "Mahasiswa berhasil ditambahkan ke antrean." };
   }
   async function saveRecord(nim) {
@@ -183,7 +211,7 @@ export default function App() {
       return { ok: true, message: `Pengambilan ${found.name} berhasil dicatat.`, record: saved };
     }
     const saved = { id: Date.now(), nim, periodId, period, date: todayKey(), time: currentTime(), staff: "Staff Demo", studentName: found.name, verificationToken: crypto.randomUUID() };
-    setRecords(prev => [...prev, saved]); setQueue(prev => prev.map(q => q.nim === nim && q.periodId === periodId && q.status === "waiting" ? { ...q, status: "completed", recordId: saved.id } : q));
+    setRecords(prev => [...prev, saved]); setQueue(prev => prev.map(q => q.nim === nim && q.periodId === periodId && q.date === todayKey() && q.status === "waiting" ? { ...q, status: "completed", recordId: saved.id } : q));
     return { ok: true, message: `Pengambilan ${found.name} berhasil dicatat.`, record: saved };
     } finally { recordBusy.current = false; }
   }
@@ -196,7 +224,7 @@ export default function App() {
         if (nextOpen && !selectedWindow?.active) throw new Error('Tidak dapat membuka layanan di luar jadwal.');
         setPeriodList(prev => prev.map(p => p.id === periodId ? { ...p, pausedDate: nextOpen ? null : todayKey() } : p));
       }
-    } catch (error) { setFirebaseError(error); }
+    } catch (error) { handleRemoteError(error); }
   }
   async function logout() { await unregisterDevicePush(user); setAdminWorkspace(false); if (demoSession) { setDemoSession(false); setUser(null); return; } if (auth) await signOut(auth); else setUser(null); }
   async function cancelQueue(id) {
@@ -214,10 +242,10 @@ export default function App() {
     setFirebaseError("");
     setAdminWorkspace(true);
     setRole(nextRole);
-    setUser({ uid: "demo", email: "demo@santap.local" });
+    if (!isDemo || !user) setUser({ uid: "demo", email: "demo@santap.local" });
   }
   if (user === undefined || (!isDemo && user && !profileLoaded)) return <main className="loading-shell">Memeriksa profil SANTAP...</main>;
-  if (!user) return <LoginPage />;
+  if (!user) return <LoginPage onDemo={!firebaseEnabled ? () => enterDemoRole('Mahasiswa') : undefined} />;
   if (!isDemo && (profileError || !profile || !VALID_ROLES.includes(profile.role) || (profile.role === "Mahasiswa" && !profile.nim))) {
     const reason = profileError ? "Aplikasi tidak bisa membaca profil Firebase akun ini." : !profile ? "Akun berhasil login, tetapi dokumen profilnya belum ditemukan." : !VALID_ROLES.includes(profile.role) ? "Field role belum berisi kategori akun yang dikenali." : "Profil mahasiswa belum memiliki field nim.";
     return <ProfileRequired onLogout={logout} reason={reason} profileError={profileError} />;
@@ -232,9 +260,9 @@ export default function App() {
     {['Supervisor', 'Head'].includes(role) && <PushControls key={user.uid} user={user} demoMode={isDemo} notifications={notifications} reminder={reminder} />}
     {firebaseError && <div className="notice error-notice">Data server: {firebaseError.message || firebaseError}</div>}{!firebaseEnabled && <div className="notice">Mode demo lokal. {firebaseSetupHint}</div>}{useSqlData && <div className="notice">Firebase Auth aktif · data operasional tersimpan di MySQL.</div>}
     {isDemo && role === "Mahasiswa" && <div className="student-demo-select"><label htmlFor="student-demo">Akun mahasiswa demo</label><select id="student-demo" value={selectedNim} onChange={e => setSelectedNim(e.target.value)}>{studentList.map(s => <option key={s.nim} value={s.nim}>{s.name} ({s.nim})</option>)}</select></div>}
-    {role === "Mahasiswa" && <StudentPage student={student} queue={currentQueue} publicQueue={useFirebaseData ? publicQueue.filter(item => item.periodId === periodId && item.date === todayKey()) : currentQueue} records={currentRecords} period={period} periodId={periodId} periodOpen={periodOpen} onJoinQueue={() => addQueue(student.nim)} />}
+    {role === "Mahasiswa" && <StudentPage key={`${user.uid}-${student.nim}`} student={student} queue={currentQueue} publicQueue={useFirebaseData ? publicQueue.filter(item => item.periodId === periodId && item.date === todayKey()) : currentQueue} records={currentRecords} period={period} periodId={periodId} periodOpen={periodOpen} onJoinQueue={() => addQueue(student.nim)} />}
     {role === "Mahasiswa" && <FeedbackPanel user={user} demoMode={isDemo} period={period} />}
-    {(role === "Staff" || (role === "Head" && page === "Antrean & Validasi")) && <><StaffPage students={studentList} queue={currentQueue} records={currentRecords} period={period} periodId={periodId} periodOpen={periodOpen} setPeriodOpen={togglePeriod} onAddQueue={addQueue} onRecord={saveRecord} onCompleteQueue={completeQueue} onCancelQueue={cancelQueue} /><PendingScans key={user.uid} user={user} demoMode={isDemo} students={studentList} periodId={periodId} config={config} useSqlData={useSqlData} onSaved={useSqlData ? refreshSqlData : async () => {}} /></>}
+    {(role === "Staff" || (role === "Head" && page === "Antrean & Validasi")) && <><StaffPage key={`staff-${user.uid}`} students={studentList} queue={currentQueue} records={currentRecords} period={period} periodId={periodId} periodOpen={periodOpen} setPeriodOpen={togglePeriod} onAddQueue={addQueue} onRecord={saveRecord} onCompleteQueue={completeQueue} onCancelQueue={cancelQueue} /><PendingScans key={user.uid} user={user} demoMode={isDemo} students={studentList} periodId={periodId} config={config} useSqlData={useSqlData} onSaved={useSqlData ? refreshSqlData : async () => {}} /></>}
     {(role === "Supervisor" || (role === "Head" && page === "Monitoring")) && <SupervisorPage user={user} demoMode={isDemo} students={studentList} records={records} demoHistory={isDemo ? demoWeeklyHistory : null} queue={queue} period={period} periodId={periodId} periodOpen={periodOpen} setPeriodOpen={togglePeriod} reminder={reminder} setReminder={setReminder} />}
     {role === "Admin" && <><AdminPage user={user} demoMode={isDemo} /><ProfileEditor user={user} students={studentList} demoMode={isDemo} onSaved={async form => { if (isDemo) setStudentList(rows => rows.map(row => row.nim === form.nim ? { ...row, ...form } : row)); else if (useSqlData) await refreshSqlData(); }} /><OperationsSettings config={config} user={user} demoMode={isDemo} onDemoChange={setConfig} /></>}
     <footer className="footer-note">SANTAP · Sistem Antrean dan Pencatatan Aktivitas Pengambilan <span>{isDemo ? "Mode demo lokal" : "Firebase aktif"}</span></footer>

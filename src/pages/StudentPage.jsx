@@ -1,11 +1,14 @@
-import { useMemo, useState } from "react";
-import { QRCodeSVG } from "qrcode.react";
-import { Clock3, CheckCircle2, ScanLine, Users, Utensils } from "lucide-react";
+import { useMemo, useRef, useState } from "react";
+import { QRCodeCanvas, QRCodeSVG } from "qrcode.react";
+import { Clock3, CheckCircle2, Download, ScanLine, Users, Utensils } from "lucide-react";
 import QrScanner from "../components/QrScanner";
+import { isServiceQr } from '../../shared/serviceQr.js';
 
 export default function StudentPage({ student, queue, publicQueue = queue, records, period, periodId, periodOpen, onJoinQueue }) {
   const [scanning, setScanning] = useState(false);
   const [scanMessage, setScanMessage] = useState(null);
+  const identityQrRef = useRef(null);
+  const [downloadError, setDownloadError] = useState('');
   const myQueue = queue.find((item) => item.nim === student.nim && item.status === "waiting");
   const myRecord = records.find((item) => item.nim === student.nim && item.period === period);
   const position = useMemo(() => myQueue ? publicQueue.filter(item => item.status === 'waiting').findIndex(item => item.id === (myQueue.publicId || myQueue.id)) + 1 || null : null, [publicQueue, myQueue]);
@@ -18,15 +21,34 @@ export default function StudentPage({ student, queue, publicQueue = queue, recor
     finally { setJoining(false); }
   }
   const payload = JSON.stringify({ type: "santap.student", version: 1, nim: student.nim });
+  function downloadQr() {
+    try {
+      if (!identityQrRef.current) throw new Error('QR belum siap.');
+      const link = document.createElement('a');
+      link.href = identityQrRef.current.toDataURL('image/png');
+      link.download = `SANTAP-QR-${student.nim}.png`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setDownloadError('');
+    } catch {
+      setDownloadError('QR gagal diunduh. Silakan coba lagi.');
+    }
+  }
   const receiptPayload = myRecord ? JSON.stringify({ type: "santap.meal-receipt", version: 1, recordId: myRecord.id, nim: student.nim, periodId, token: myRecord.verificationToken }) : "";
   function handleReceiptScan(value) {
+    if (isServiceQr(value)) {
+      setScanning(false);
+      setScanMessage({ type: 'success', text: 'QR layanan SANTAP dikenali. Tunjukkan QR identitas Anda kepada staff untuk validasi pengambilan.' });
+      return;
+    }
     try {
       const parsed = JSON.parse(value);
-      if (parsed.type !== "santap.meal-receipt" || !parsed.recordId || !parsed.nim || !parsed.token) throw new Error();
+      if (parsed?.type !== "santap.meal-receipt" || parsed.version !== 1 || !parsed.recordId || !parsed.nim || !parsed.token) throw new Error();
       if (String(parsed.nim) !== String(student.nim)) {
         setScanMessage({ type: "error", text: "QR ini bukan bukti pengambilan milik Anda." });
       } else {
-        const matchingRecord = records.find(record => String(record.id) === String(parsed.recordId) && record.verificationToken === parsed.token);
+        const matchingRecord = records.find(record => record.nim === student.nim && record.periodId === parsed.periodId && String(record.id) === String(parsed.recordId) && record.verificationToken === parsed.token);
         setScanMessage(matchingRecord ? { type: "success", text: "Bukti pengambilan staff berhasil diverifikasi." } : { type: "error", text: "Bukti tidak ditemukan atau token sudah tidak valid." });
       }
     } catch { setScanMessage({ type: "error", text: "QR tidak dikenali. Gunakan QR bukti yang dibuat oleh staff." }); }
@@ -39,8 +61,11 @@ export default function StudentPage({ student, queue, publicQueue = queue, recor
         <div className="student-avatar">{student.name.split(" ").map(x => x[0]).slice(0, 2).join("")}</div>
         <h3>{student.name}</h3><p>{student.nim} · {student.faculty}</p>
         <span className="residence-tag">{student.residence}</span>
-        <div className="qr-frame"><QRCodeSVG value={payload} size={176} level="M" includeMargin /></div>
-        <small className="muted">Tunjukkan QR ini kepada staff untuk identifikasi.</small>
+        <div className="qr-frame"><QRCodeCanvas ref={identityQrRef} value={payload} size={352} style={{ width: 176, height: 176 }} level="M" includeMargin title="QR identitas mahasiswa" /></div>
+        <button className="button secondary" type="button" onClick={downloadQr}><Download size={16} /> Unduh QR (PNG)</button>
+        {downloadError && <p role="alert">{downloadError}</p>}
+        <small className="muted">QR identitas ini tetap sama selama NIM tidak berubah dan dapat disimpan untuk ditunjukkan kepada staff.</small>
+        <small className="muted">Jangan bagikan QR Anda. Bawa kartu mahasiswa untuk pemeriksaan identitas; QR bukan bukti pengambilan atau jaminan hak makan.</small>
       </div>
     </section>
     <div className="stack">
@@ -48,6 +73,7 @@ export default function StudentPage({ student, queue, publicQueue = queue, recor
         <div className="panel-heading"><div><span className="eyebrow">PERIODE MAKAN</span><h2>Status pengambilan</h2></div><Utensils size={20} className="muted-icon" /></div>
         <div className="period-summary"><div><b>{period}</b><span>Periode yang dipilih pada demo</span></div><span className={`status-pill ${periodOpen ? "success" : "warning"}`}>{periodOpen ? "Dibuka" : "Ditutup"}</span></div>
         {myRecord ? <div className="notice success-notice"><CheckCircle2 size={18} /> Pengambilan periode ini sudah tercatat pada {myRecord.time}.</div> : <div className="notice"><Clock3 size={18} /> Belum ada catatan pengambilan untuk periode ini.</div>}
+        <p className="helper-text">Batas pengambilan: 1 kali per mahasiswa, per tanggal, per periode makan. {myRecord ? 'Jatah periode ini sudah digunakan.' : 'Jatah periode ini belum digunakan.'} Memindai ulang atau mengunduh QR tidak menambah jatah. Pencatatan tetap memerlukan validasi server saat layanan dibuka.</p>
       </section>
       <section className="panel receipt-panel"><div className="panel-heading"><div><span className="eyebrow">KONFIRMASI STAFF</span><h2>Verifikasi QR pengambilan</h2><p>Pindai QR yang diberikan staff untuk memastikan bukti transaksi sesuai akun Anda.</p></div><ScanLine className="muted-icon" /></div>
         {scanning && <QrScanner onScan={handleReceiptScan} onClose={() => setScanning(false)} title="Scan QR konfirmasi staff" helper="Arahkan kamera ke QR bukti pengambilan dari staff." />}

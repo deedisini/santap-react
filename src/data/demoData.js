@@ -13,9 +13,9 @@ export const mealPeriods = Object.keys(DEFAULT_OPERATIONS.schedules).map(id => {
 });
 
 export const initialQueue = [
-  { id: 1, nim: "23101002", periodId: "morning", status: "waiting", joinedAt: "06:12" },
-  { id: 2, nim: "23101003", periodId: "morning", status: "waiting", joinedAt: "06:14" },
-  { id: 3, nim: "23101004", periodId: "morning", status: "waiting", joinedAt: "06:15" }
+  { id: 1, nim: "23101002", periodId: "morning", date: localParts().date, status: "waiting", joinedAt: "06:12" },
+  { id: 2, nim: "23101003", periodId: "morning", date: localParts().date, status: "waiting", joinedAt: "06:14" },
+  { id: 3, nim: "23101004", periodId: "morning", date: localParts().date, status: "waiting", joinedAt: "06:15" }
 ];
 
 export const initialRecords = [

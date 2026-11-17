@@ -5,3 +5,11 @@ dist/
 __pycache__/
 *.py[cod]
 SRS/.srs_build/
+docs/srs/.srs_build/
+.venv/
+.codex-remote-attachments/
+docx_render/
+presentation-output/
+coverage/
+*.log
+docs/.model-preview/

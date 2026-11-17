@@ -4,7 +4,7 @@ Dokumen ini melengkapi Penilaian 2 dan Penilaian 3 untuk SANTAP. Bukti elisitasi
 
 ## 2.1 Bukti dua teknik elisitasi
 
-Pembaruan operasional dan penelusuran ID historis tersedia pada [usulan SRS v1.2](./SANTAP_SRS_V1_2_PROPOSED.md). Penomoran FR dalam dokumen ini dipertahankan sebagai namespace ELIS dan tidak mengganti ID v1.1.
+Pembaruan operasional dan penelusuran ID historis tersedia pada [usulan SRS v1.2](../docs/srs/SANTAP_SRS_V1_2_PROPOSED.md). Penomoran FR dalam dokumen ini dipertahankan sebagai namespace ELIS dan tidak mengganti ID v1.1.
 
 | Teknik | Narasumber representatif | Bukti | Status |
 |---|---|---|---|

@@ -3,7 +3,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth, firebaseSetupHint } from "../lib/firebase";
 import universityLogo from "../assets/LOGO_UNIVERSITAS_KLABAT.png";
 
-export default function LoginPage() {
+export default function LoginPage({ onDemo }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -24,6 +24,7 @@ export default function LoginPage() {
     <section className="login-stage"><div className="login-stage-meta">SANTAP <span>•</span> Fern Wallace Dining Hall</div><div className="login-panel">
       <span className="eyebrow">SELAMAT DATANG KEMBALI</span><h2>Masuk ke SANTAP</h2><p className="muted">Gunakan akun email UNKLAB anda untuk melanjutkan.</p>
       <form onSubmit={submit} className="login-form"><label>Email<input type="email" value={email} onChange={e => setEmail(e.target.value)} required /></label><label>Kata sandi<input type="password" value={password} onChange={e => setPassword(e.target.value)} required /></label>{error && <div className="notice error-notice">{error}</div>}<button className="button primary full">Masuk ke akun</button></form>
+      {onDemo && <button type="button" className="button secondary full" onClick={onDemo}>Buka demo lokal</button>}
       <p className="login-privacy">Dengan masuk, Anda menyetujui penggunaan SANTAP sesuai kebijakan layanan dining hall.</p>
     </div><div className="login-stage-footer">Butuh bantuan? Hubungi administrator dining hall.</div></section>
   </main>;

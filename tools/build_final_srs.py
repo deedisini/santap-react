@@ -15,9 +15,9 @@ from docx.shared import Inches, Pt, RGBColor
 
 
 ROOT = Path(__file__).resolve().parents[1]
-TEMPLATE = ROOT / "SRS" / "03_Template_SRS.docx"
-OUTPUT = ROOT / "SRS" / "SANTAP_SRS_FINAL.docx"
-WORK = ROOT / "SRS" / ".srs_build"
+TEMPLATE = ROOT / "docs" / "srs" / "03_Template_SRS.docx"
+OUTPUT = ROOT / "docs" / "srs" / "SANTAP_SRS_FINAL.docx"
+WORK = ROOT / "docs" / "srs" / ".srs_build"
 MODELS = ROOT / "docs" / "models"
 
 

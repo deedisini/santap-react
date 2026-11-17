@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import { assertServing, localParts } from '../shared/operations.js';
+import { assertServing, localParts, DEFAULT_OPERATIONS } from '../shared/operations.js';
 import { fail, requireRole } from './auth.js';
 import { checkStudent } from './operations.js';
 
@@ -9,10 +9,12 @@ export async function sqlOperation(pool, identity, action, data, config, now) {
   if (action !== 'queue') requireRole(identity, ['Staff', 'Supervisor', 'Head', 'Admin']);
   if (action === 'queue' && identity.role === 'Mahasiswa' && data.nim !== identity.nim) throw fail(403, 'forbidden', 'NIM tidak sesuai profil.');
   if (action === 'cancel') {
+    if (!/^[1-9]\d*$/.test(String(data.id ?? ''))) throw fail(400, 'invalid_queue', 'ID antrean tidak valid.');
     const [result] = await pool.execute("UPDATE queues SET status = 'cancelled' WHERE id = ? AND status = 'waiting'", [data.id]);
     if (!result.affectedRows) throw fail(409, 'invalid_queue', 'Antrean tidak dapat dibatalkan.');
     return { ok: true };
   }
+  if (!Object.hasOwn(DEFAULT_OPERATIONS.schedules, data.periodId)) throw fail(400, 'invalid_period', 'Periode tidak valid.');
   const connection = await pool.getConnection();
   try {
     await connection.beginTransaction();

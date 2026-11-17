@@ -4,6 +4,7 @@ import { loadPending, storePending } from '../lib/pendingScans.js';
 import { localParts, periodWindow } from '../../shared/operations.js';
 import { serviceRequest } from '../lib/serviceApi.js';
 import { createSqlMealRecord } from '../lib/sqlApi.js';
+import { parseStudentIdentity } from '../../shared/serviceQr.js';
 
 export default function PendingScans({ user, demoMode, students, periodId, config, useSqlData, onSaved }) {
   const [rows, setRows] = useState(() => loadPending(localStorage, user.uid));
@@ -12,9 +13,9 @@ export default function PendingScans({ user, demoMode, students, periodId, confi
   function persist(next) { storePending(localStorage, user.uid, next); setRows(next); }
   function stage(value) {
     if (rows.length >= 100) { setMessage('Penyimpanan sementara penuh. Sinkronkan atau tinjau entri yang sudah ada.'); return; }
-    let identity = value.trim();
-    try { const parsed = JSON.parse(identity); if (parsed.type === 'santap.student') identity = parsed.nim; } catch { /* Raw barcode or NIM. */ }
-    if (!/^[A-Za-z0-9_-]{1,30}$/.test(identity || '')) { setMessage('QR, barcode, atau NIM tidak valid.'); return; }
+    let identity;
+    try { identity = parseStudentIdentity(value); }
+    catch (error) { setMessage(error.message); return; }
     const window = periodWindow(periodId, new Date(), config);
     if (!window?.active) { setMessage('Penyimpanan sementara hanya tersedia selama jadwal layanan.'); return; }
     if (!students.some(student => student.nim === identity)) { setMessage('NIM belum tersedia dalam data lokal perangkat ini.'); return; }

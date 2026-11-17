@@ -82,14 +82,24 @@ enum QueueStatus {
   cancelled
 }
 
-Student "1" -- "0..1" UserProfile : linked by nim
+Student "0..1" -- "0..1" UserProfile : linked by nim
 Student "1" -- "0..*" QueueEntry : joins
 Student "1" -- "0..*" MealRecord : receives
 MealPeriod "1" -- "0..*" QueueEntry : queues for
 MealPeriod "1" -- "0..*" MealRecord : records
 UserProfile "1" -- "0..*" MealRecord : validates
 UserProfile "1" -- "0..*" PushSubscription : owns
-PushSubscription "1" *-- "0..*" PushDelivery : delivery claims
+PushSubscription "0..1" -- "0..*" PushDelivery : historical claims
 OperationsConfig ..> MealPeriod : schedules
 MealRecord ..> QueueEntry : completes matching entry
+note bottom
+  Model domain, bukan deklarasi kelas JavaScript.
+  UserProfile.canAccess -> auth.requireRole
+  Student.isComplete -> operations.checkStudent
+  MealPeriod.isServing -> shared.assertServing
+  QueueEntry.cancel/complete -> firestoreOperation / sqlOperation
+  OperationsConfig.validate -> validateOperations
+  PushDelivery.claimOnce -> dispatchClosingPush, document.create
+  Klaim pengiriman tetap historis; bukan komposisi lifecycle token.
+end note
 @enduml

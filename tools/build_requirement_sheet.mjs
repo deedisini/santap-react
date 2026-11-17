@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { SpreadsheetFile, Workbook } from "@oai/artifact-tool";
 
-const outputPath = new URL("../LEMBAR_KERJA_KEBUTUHAN_SANTAP.xlsx", import.meta.url);
+const outputPath = new URL("../docs/worksheets/LEMBAR_KERJA_KEBUTUHAN_SANTAP.xlsx", import.meta.url);
 
 const requirements = [
   ["FR-01", "Fungsional", "Sistem harus mengautentikasi pengguna sebelum membuka dashboard.", "Q1, Q9", "Must", "Akses dashboard tanpa autentikasi ditolak.", "Terdokumentasi", ""],
@@ -69,6 +69,6 @@ workbook.recalculate();
 const inspection = await workbook.inspect({ kind: "table", range: `Kebutuhan!A1:H${4 + requirements.length}`, include: "values,formulas", tableMaxRows: 30, tableMaxCols: 8 });
 console.log(inspection.ndjson);
 const preview = await workbook.render({ sheetName: "Kebutuhan", range: `A1:H${4 + requirements.length}`, scale: 1.3, format: "png" });
-await fs.writeFile(new URL("../LEMBAR_KERJA_KEBUTUHAN_SANTAP.preview.png", import.meta.url), new Uint8Array(await preview.arrayBuffer()));
+await fs.writeFile(new URL("../docs/worksheets/LEMBAR_KERJA_KEBUTUHAN_SANTAP.preview.png", import.meta.url), new Uint8Array(await preview.arrayBuffer()));
 const output = await SpreadsheetFile.exportXlsx(workbook);
 await output.save(fileURLToPath(outputPath));

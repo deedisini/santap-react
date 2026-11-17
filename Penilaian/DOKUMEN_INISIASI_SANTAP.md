@@ -2,7 +2,7 @@
 
 ## 1.1 Nama sistem, masalah, tujuan, dan manfaat
 
-Pembaruan 12 November 2026: pemilik proyek telah menyampaikan jadwal resmi Asia/Makassar, termasuk perbedaan makan malam Jumat–Sabtu. Rincian, reminder push, dan tema Sabat opsional dicatat pada [usulan SRS v1.2](./SANTAP_SRS_V1_2_PROPOSED.md). Penyampaian jadwal ini tidak menggantikan bukti persetujuan formal dosen/pengelola yang masih harus dilampirkan. Tema Sabat terpisah dari hak makan dan jadwal layanan; sesuai instruksi pemilik proyek, default berlangsung setiap Jumat pukul 18.00 sampai Sabtu pukul 18.00 WITA tanpa ketergantungan data matahari terbenam.
+Pembaruan 12 November 2026: pemilik proyek telah menyampaikan jadwal resmi Asia/Makassar, termasuk perbedaan makan malam Jumat–Sabtu. Rincian, reminder push, dan tema Sabat opsional dicatat pada [usulan SRS v1.2](../docs/srs/SANTAP_SRS_V1_2_PROPOSED.md). Penyampaian jadwal ini tidak menggantikan bukti persetujuan formal dosen/pengelola yang masih harus dilampirkan. Tema Sabat terpisah dari hak makan dan jadwal layanan; sesuai instruksi pemilik proyek, default berlangsung setiap Jumat pukul 18.00 sampai Sabtu pukul 18.00 WITA tanpa ketergantungan data matahari terbenam.
 
 **SANTAP** adalah Sistem Antrean dan Pencatatan Aktivitas Pengambilan makanan di Fern Wallace Dining Hall, Universitas Klabat. Sistem ini berfokus pada identifikasi mahasiswa, pengaturan antrean, validasi pengambilan makanan, dan pemantauan operasional per periode makan.
 

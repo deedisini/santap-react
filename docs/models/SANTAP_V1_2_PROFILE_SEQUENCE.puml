@@ -1,5 +1,5 @@
 @startuml
-title UC-06 — Sequence: Kelola Profil Mahasiswa
+title UC-09 — Sequence: Kelola Profil Mahasiswa
 
 actor Admin
 participant "ProfileEditor" as UI
@@ -14,8 +14,10 @@ Admin -> UI : Simpan profil
 UI -> Auth : getIdToken()
 Auth --> UI : Firebase ID token
 UI -> API : POST /api/admin/students/update\nBearer token, NIM, nama, fakultas, status asrama
-API -> Auth : verifyIdToken(token, checkRevoked)
-Auth --> API : UID dan role
+API -> Auth : verifyIdToken(token)
+Auth --> API : UID terverifikasi
+API -> DB : Baca users/{uid}
+DB --> API : Role dan profil pemanggil
 API -> API : requireRole(Admin) dan validasi NIM
 API -> DB : Baca users dan students untuk NIM
 DB --> API : Profil saat ini
@@ -24,7 +26,7 @@ alt Bukan Admin
   API --> UI : 403 forbidden
   UI --> Admin : Tampilkan akses ditolak
 else NIM tidak ditemukan / profil tidak valid
-  API --> UI : 400 atau 404 + pesan validasi
+  API --> UI : 400 / 404 / 409 + pesan validasi
   UI --> Admin : Tampilkan perbaikan yang diperlukan
 else Profil valid
   opt Mode SQL aktif
@@ -42,9 +44,20 @@ else Profil valid
     opt Mode SQL aktif
       API -> SQL : Commit transaction
     end
-    API --> UI : 200 ok
-    UI -> UI : Muat ulang profil mahasiswa
-    UI --> Admin : Tampilkan "Profil diperbarui"
+    alt Commit SQL gagal setelah Firestore berhasil
+      API -> SQL : Rollback transaction
+      API -> DB : Pulihkan snapshot asli tiap dokumen
+      API --> UI : Kesalahan penyimpanan
+      UI --> Admin : Tampilkan gagal; perlu tinjau jika pemulihan gagal
+    else Semua commit berhasil (atau mode Firestore saja)
+      API --> UI : 200 ok
+      UI -> UI : Muat ulang profil mahasiswa
+      UI --> Admin : Tampilkan "Profil diperbarui"
+    end
   end
 end
+note over API, SQL
+  Kompensasi lintas store bersifat best-effort.
+  Gangguan jaringan saat pemulihan memerlukan rekonsiliasi.
+end note
 @enduml

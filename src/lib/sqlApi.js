@@ -19,13 +19,19 @@ async function request(path, options = {}, user) {
     try { data = await response.json(); }
     catch { throw new Error(`Server data MySQL mengembalikan respons tidak valid (HTTP ${response.status}).`); }
     if (response.status === 401 && data?.code === 'unauthorized' && !forceRefresh) continue;
-    if (!response.ok) throw new Error(data.message || "Permintaan ke server data MySQL gagal.");
+    if (!response.ok) {
+      throw Object.assign(new Error(data.message || "Permintaan ke server data MySQL gagal."), {
+        status: response.status,
+        code: data?.code,
+      });
+    }
     return data;
   }
-  throw new Error("Silakan masuk kembali untuk memperbarui sesi.");
+  throw Object.assign(new Error("Sesi Firebase tidak valid. Silakan masuk kembali."), { status: 401, code: "unauthorized" });
 }
 
 export const loadSqlData = (user) => request("/api/sql/bootstrap", {}, user);
+export const loadSqlConfig = (user) => request("/api/sql/config", {}, user);
 export const createSqlQueueEntry = (data, user) => request("/api/sql/queues", { method: "POST", body: JSON.stringify(data) }, user);
 export const createSqlMealRecord = (data, user) => request("/api/sql/meal-records", { method: "POST", body: JSON.stringify(data) }, user);
 export const updateSqlMealPeriod = (periodId, active, user) => request(`/api/sql/meal-periods/${periodId}`, { method: "PATCH", body: JSON.stringify({ active }) }, user);

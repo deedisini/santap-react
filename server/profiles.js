@@ -1,4 +1,5 @@
 import { fail } from './auth.js';
+import { FieldValue } from 'firebase-admin/firestore';
 import { checkStudent } from './operations.js';
 export async function updateStudentProfile(input, db, pool) {
   if (typeof input.nim !== 'string' || !/^[A-Za-z0-9_-]{1,30}$/.test(input.nim)) throw fail(400, 'invalid_nim', 'NIM tidak valid.');
@@ -7,7 +8,7 @@ export async function updateStudentProfile(input, db, pool) {
   const profiles = await db.collection('users').where('nim', '==', input.nim).get();
   const studentRef = db.collection('students').doc(input.nim);
   const student = await studentRef.get();
-  let connection, previous;
+  let connection, previous, firestoreCommitted = false;
   try {
     if (pool) {
       connection = await pool.getConnection();
@@ -22,15 +23,17 @@ export async function updateStudentProfile(input, db, pool) {
     profiles.docs.forEach(doc => batch.update(doc.ref, values));
     if (student.exists) batch.update(studentRef, values);
     await batch.commit();
+    firestoreCommitted = true;
     if (connection) await connection.commit();
   } catch (error) {
     if (connection) {
       await connection.rollback();
-      if (previous) {
+      if (firestoreCommitted) {
         const restore = db.batch();
-        const oldValues = Object.fromEntries(Object.keys(values).map(key => [key, previous[key]]));
-        profiles.docs.forEach(doc => restore.update(doc.ref, oldValues));
-        if (student.exists) restore.update(studentRef, oldValues);
+        // Each store/document can have different values; restore its own snapshot.
+        const oldValues = snapshot => Object.fromEntries(Object.keys(values).map(key => [key, snapshot.data()[key] ?? FieldValue.delete()]));
+        profiles.docs.forEach(doc => restore.update(doc.ref, oldValues(doc)));
+        if (student.exists) restore.update(studentRef, oldValues(student));
         await restore.commit();
       }
     }

@@ -1,4 +1,4 @@
-import { collection, doc, getDoc, onSnapshot, query } from 'firebase/firestore';
+import { collection, doc, onSnapshot, query } from 'firebase/firestore';
 import { db } from './firebase';
 
 export function subscribeCollection(name, onData, onError, constraints = []) {
@@ -13,10 +13,4 @@ export function subscribeCollection(name, onData, onError, constraints = []) {
 export function subscribeUserProfile(uid, onData, onError) {
   if (!db || !uid) return () => {};
   return onSnapshot(doc(db, 'users', uid), snapshot => onData(snapshot.exists() ? { id: snapshot.id, ...snapshot.data() } : null), onError);
-}
-
-export async function findStudentByNim(nim) {
-  if (!db) return null;
-  const snapshot = await getDoc(doc(db, 'students', nim));
-  return snapshot.exists() ? { id: snapshot.id, ...snapshot.data() } : null;
 }

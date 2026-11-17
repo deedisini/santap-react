@@ -1,6 +1,6 @@
 @startuml
 entity users {
-  * uid : Firebase UID
+  * firebase_uid : Firebase UID (SQL)
   role
   nim
 }
@@ -21,7 +21,7 @@ entity queues {
   period_id
   joined_at
   status
-  public_id
+  record_id : logical reference
 }
 entity meal_records {
   * id
@@ -55,19 +55,25 @@ entity "pushDeliveries (Firestore)" as deliveries {
   status
   attempted_at
 }
-students ||--o| users : logical linkage
+students |o--o| users : optional logical linkage
 students ||--o{ queues
 students ||--o{ meal_records
 meal_periods ||--o{ queues
 meal_periods ||--o{ meal_records
 users ||--o{ meal_records : validates
 users ||--o{ subscriptions
-subscriptions ||--o{ deliveries
-queues ||--o| public_queue : sanitized projection
+subscriptions |o--o{ deliveries : historical claims
+queues ||--o{ public_queue : current and historical projections
 settings .. meal_periods : approved schedule
 note bottom of meal_records
   SQL unique key: NIM, period ID, served date.
   Firestore deterministic record identity.
+end note
+note bottom of queues
+  SQL: FK nim -> students, period_id -> meal_periods.
+  record_id is nullable, no SQL FK in current schema.
+  publicId exists only in the Firestore queue model.
+  One current publicId; rejoining creates a new projection.
 end note
 note bottom of settings
   Cross-store links are logical, not SQL foreign keys.

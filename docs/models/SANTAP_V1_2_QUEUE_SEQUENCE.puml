@@ -12,8 +12,10 @@ Mahasiswa -> UI : Pilih "Masuk antrean"
 UI -> Auth : getIdToken()
 Auth --> UI : Firebase ID token
 UI -> API : POST /api/operations/queue\nBearer token, NIM, periodId
-API -> Auth : verifyIdToken(token, checkRevoked)
-Auth --> API : UID, role, dan profil
+API -> Auth : verifyIdToken(token)
+Auth --> API : UID terverifikasi
+API -> DB : Baca users/{uid}
+DB --> API : Role dan profil pemanggil
 API -> DB : runTransaction()
 activate DB
 DB --> API : Jadwal, periode, profil mahasiswa,\ncatatan makan, dan antrean hari ini
@@ -30,7 +32,7 @@ else Sudah berada dalam antrean
   UI --> Mahasiswa : Tampilkan status antrean yang ada
 else Valid
   API -> DB : set queues/{date_period_nim}\nstatus = waiting
-  API -> DB : set publicQueue/{hash}\nproyeksi tanpa identitas
+  API -> DB : set publicQueue/{randomUUID}\nproyeksi tanpa identitas
   DB --> API : Commit transaksi
   API --> UI : 200 + id antrean
   UI --> Mahasiswa : Tampilkan status dan posisi antrean

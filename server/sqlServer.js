@@ -15,7 +15,7 @@ async function bootstrap(identity) {
   const [queues] = await pool.query("SELECT id, nim, period_id AS periodId, student_name AS studentName, status, DATE_FORMAT(joined_at, '%Y-%m-%d') AS date, TIME_FORMAT(joined_at, '%H:%i') AS joinedAt, record_id AS recordId FROM queues WHERE status = 'waiting' ORDER BY joined_at");
   const [records] = await pool.query("SELECT id, nim, period_id AS periodId, period_label AS period, student_name AS studentName, staff_name AS staff, verification_token AS verificationToken, DATE_FORMAT(served_date, '%Y-%m-%d') AS date, TIME_FORMAT(served_time, '%H:%i') AS time FROM meal_records ORDER BY id");
   if (identity.role === 'Mahasiswa') {
-    return { students: students.filter(x => x.nim === identity.nim), mealPeriods: periods, queues: queues.map(({ id, status, periodId, joinedAt, date }) => ({ id, status, periodId, joinedAt, date, ...(queues.find(q => q.id === id)?.nim === identity.nim ? { nim: identity.nim } : {}) })), mealRecords: records.filter(x => x.nim === identity.nim) };
+    return { students: students.filter(x => x.nim === identity.nim), mealPeriods: periods, queues: queues.map(({ id, nim, status, periodId, joinedAt, date }) => ({ id, status, periodId, joinedAt, date, ...(nim === identity.nim ? { nim } : {}) })), mealRecords: records.filter(x => x.nim === identity.nim) };
   }
   return { students, mealPeriods: periods, queues, mealRecords: records };
 }
@@ -28,6 +28,7 @@ const server = http.createServer(async (request, response) => {
     const identity = await authenticate(request);
     const url = new URL(request.url, `http://${request.headers.host}`);
     if (request.method === "GET" && url.pathname === "/api/sql/bootstrap") return json(response, 200, await bootstrap(identity));
+    if (request.method === "GET" && url.pathname === "/api/sql/config") return json(response, 200, await readOperations(firebase().db));
 
     if (request.method === "POST" && url.pathname === "/api/sql/queues") {
       const data = await body(request);

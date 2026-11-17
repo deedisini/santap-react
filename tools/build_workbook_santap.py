@@ -6,11 +6,11 @@ from openpyxl.workbook.properties import CalcProperties
 from docx import Document
 
 ROOT = Path(__file__).resolve().parents[1]
-folder = ROOT / 'Lembar Kerja'
+folder = ROOT / 'docs/worksheets/lembar-proyek'
 template = folder / '04_Template_Lembar_Kerja_Proyek.xlsx'
 out = folder / 'SANTAP_Lembar_Kerja_Proyek.xlsx'
 w = openpyxl.load_workbook(template)
-d = Document(ROOT / 'SRS/SANTAP_SRS_FINAL.docx')
+d = Document(ROOT / 'docs/srs/SANTAP_SRS_FINAL.docx')
 
 def row(sheet, number, values):
     for col, value in enumerate(values, 1):

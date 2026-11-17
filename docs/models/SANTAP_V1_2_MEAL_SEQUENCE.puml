@@ -13,8 +13,10 @@ Staff -> UI : Catat pengambilan
 UI -> Auth : getIdToken()
 Auth --> UI : Firebase ID token
 UI -> API : POST /api/operations/meal\nBearer token, NIM, periodId
-API -> Auth : verifyIdToken(token, checkRevoked)
+API -> Auth : verifyIdToken(token)
 Auth --> API : UID dan identitas terautentikasi
+API -> DB : Baca users/{uid}
+DB --> API : Role dan profil pemanggil
 API -> DB : runTransaction()
 activate DB
 DB --> API : Jadwal, status periode, profil,\ncatatan makan, dan antrean hari ini

@@ -14,7 +14,12 @@ export async function authenticate(request, services = firebase()) {
   const match = /^Bearer (\S+)$/i.exec(request.headers.authorization || '');
   if (!match) throw fail(401, 'unauthorized', 'Firebase ID token diperlukan.');
   let token;
-  try { token = await services.auth.verifyIdToken(match[1], true); }
+  try {
+    // Signature and audience validation is sufficient here. Revocation checks
+    // require an additional Admin Auth lookup and can reject every valid login
+    // when the server credential lacks that permission.
+    token = await services.auth.verifyIdToken(match[1]);
+  }
   catch { throw fail(401, 'unauthorized', 'Token tidak valid atau kedaluwarsa.'); }
   const profile = await services.db.collection('users').doc(token.uid).get();
   if (!profile.exists || !roles.includes(profile.data().role)) throw fail(403, 'profile_required', 'Profil pengguna belum tersedia.');

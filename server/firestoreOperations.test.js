@@ -31,6 +31,21 @@ function database() {
 }
 const staff = { role: 'Staff', uid: 'verified-staff', name: 'Verified Staff' };
 const now = new Date('2026-11-12T07:00:00+08:00');
+
+test('cancelling and rejoining uses a fresh random public identity without recording a meal', async () => {
+  const db = database();
+  const student = { role: 'Mahasiswa', uid: 'student', nim: '123' };
+  const first = await firestoreOperation(db, student, 'queue', { nim: '123', periodId: 'morning' }, now);
+  const oldPublicId = db.values.get(`queues/${first.id}`).publicId;
+  assert.match(oldPublicId, /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
+  await firestoreOperation(db, staff, 'cancel', { id: first.id }, now);
+  assert.equal(db.values.get(`publicQueue/${oldPublicId}`).status, 'cancelled');
+  await firestoreOperation(db, student, 'queue', { nim: '123', periodId: 'morning' }, now);
+  const newPublicId = db.values.get(`queues/${first.id}`).publicId;
+  assert.notEqual(newPublicId, oldPublicId);
+  assert.equal(db.values.get(`publicQueue/${newPublicId}`).status, 'waiting');
+  assert.equal([...db.values.keys()].some(key => key.startsWith('mealRecords/')), false);
+});
 test('Firestore records once, completes same-day queue atomically, and hides identity in public queue', async () => {
   const db = database();
   await firestoreOperation(db, { role: 'Mahasiswa', uid: 'student', nim: '123' }, 'queue', { nim: '123', periodId: 'morning' }, now);

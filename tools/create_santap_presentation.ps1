@@ -1,6 +1,6 @@
 $ErrorActionPreference = 'Stop'
 
-$outDir = Join-Path $PSScriptRoot '..\presentation-output'
+$outDir = Join-Path $PSScriptRoot '..\docs\presentation'
 New-Item -ItemType Directory -Force -Path $outDir | Out-Null
 $outFile = Join-Path $outDir 'SANTAP_Project_Basis_Data.pptx'
 if (Test-Path $outFile) { Remove-Item -LiteralPath $outFile -Force }

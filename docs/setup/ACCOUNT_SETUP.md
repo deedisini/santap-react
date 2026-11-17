@@ -24,8 +24,8 @@
 
    The existing SMTP integration defaults to Gmail on port 465. Use your actual sender settings. The feedback recipient is configured on the server, not selected by students.
 
-5. Publish [firestore.rules](./firestore.rules) in Firebase Console. Browser clients cannot assign roles; account provisioning uses the authenticated server API.
-6. If `VITE_SQL_API_URL` is configured, import [server/schema.sql](./server/schema.sql) and start MySQL as described in [MYSQL_SETUP.md](./MYSQL_SETUP.md). New students are stored in MySQL; otherwise they are stored in Firestore. Profiles always remain in Firestore.
+5. Publish [firestore.rules](../../firestore.rules) in Firebase Console. Browser clients cannot assign roles; account provisioning uses the authenticated server API.
+6. If `VITE_SQL_API_URL` is configured, import [server/schema.sql](../../server/schema.sql) and start MySQL as described in [MYSQL_SETUP.md](./MYSQL_SETUP.md). New students are stored in MySQL; otherwise they are stored in Firestore. Profiles always remain in Firestore.
 
 ## Create the first Admin
 
@@ -71,7 +71,7 @@ For production, configure your web server to proxy `/api/admin`, `/api/feedback`
 
 The trusted service server now handles operational validation even when Firestore stores meals and queues. Publish the updated Firestore rules with the new backend; browser clients no longer write operational records directly. Production proxy configuration must include `/api/operations`, `/api/admin` and `/api/push` as well as the existing feedback/report paths.
 
-Closing reminders use browser push and an in-app fallback. Configure `VITE_FIREBASE_VAPID_KEY` and server-only `ENABLE_PUSH_WORKER=true` for background delivery. Existing invitation, feedback and report emails remain unchanged. Admin can edit existing student name/faculty/residence and configure schedules plus Sabbath settings (default: Friday 18:00–Saturday 18:00 WITA weekly; sourced dated windows remain optional). See [implementation notes](./IMPLEMENTATION_V1_2.md) and [proposed SRS v1.2](./SANTAP_SRS_V1_2_PROPOSED.md).
+Closing reminders use browser push and an in-app fallback. Configure `VITE_FIREBASE_VAPID_KEY` and server-only `ENABLE_PUSH_WORKER=true` for background delivery. Existing invitation, feedback and report emails remain unchanged. Admin can edit existing student name/faculty/residence and configure schedules plus Sabbath settings (default: Friday 18:00–Saturday 18:00 WITA weekly; sourced dated windows remain optional). See [implementation notes](../archive/IMPLEMENTATION_V1_2.md) and [proposed SRS v1.2](../srs/SANTAP_SRS_V1_2_PROPOSED.md).
 
 ## Reference links
 

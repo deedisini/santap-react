@@ -44,15 +44,15 @@ Dokumen ini menyalin butir penilaian dari gambar rubrik yang diberikan untuk SAN
 
 | No. | Butir yang dicek | Bukti SANTAP saat ini | Status kesiapan |
 |---|---|---|---|
-| 3.1 | Use case diagram: aktor, use case, dan batas sistem (system boundary) digambar dengan notasi yang benar | [SANTAP_V1_2_USE_CASE.puml](./docs/models/SANTAP_V1_2_USE_CASE.puml) | Siap |
+| 3.1 | Use case diagram: aktor, use case, dan batas sistem (system boundary) digambar dengan notasi yang benar | [SANTAP_V1_2_USE_CASE.puml](../docs/models/SANTAP_V1_2_USE_CASE.puml) | Siap |
 | 3.2 | Relasi include, extend, dan generalisasi dipakai dengan tepat (jika ada) | Tinjau/ tambahkan relasi pada use case diagram jika memang diperlukan oleh alur | Perlu ditinjau |
 | 3.3 | Minimal 2 aktor dan 6 use case yang mencakup semua kebutuhan fungsional prioritas Must | Use case v1.2 memuat 5 aktor dan 11 use case; pastikan FR Must terpetakan | Siap |
 | 3.4 | Use case description lengkap untuk setiap use case: aktor, prakondisi, pascakondisi, alur utama, alur alternatif/eksepsi | Dokumen elisitasi, bagian 3.4; perlu lengkapi deskripsi untuk UC v1.2 yang belum tercakup | Sebagian |
-| 3.5 | Minimal 3 activity diagram untuk use case utama dengan notasi benar (initial, final, decision, merge, fork/join) | [SANTAP_V1_2_MEAL_ACTIVITY.puml](./docs/models/SANTAP_V1_2_MEAL_ACTIVITY.puml) dan [SANTAP_V1_2_CLOSING_ACTIVITY.puml](./docs/models/SANTAP_V1_2_CLOSING_ACTIVITY.puml); masih perlu satu diagram lagi | Sebagian |
+| 3.5 | Minimal 3 activity diagram untuk use case utama dengan notasi benar (initial, final, decision, merge, fork/join) | [SANTAP_V1_2_MEAL_ACTIVITY.puml](../docs/models/SANTAP_V1_2_MEAL_ACTIVITY.puml) dan [SANTAP_V1_2_CLOSING_ACTIVITY.puml](../docs/models/SANTAP_V1_2_CLOSING_ACTIVITY.puml); masih perlu satu diagram lagi | Sebagian |
 | 3.6 | Activity diagram memakai swimlane yang memisahkan aktor dan sistem | Meal activity memisahkan Staff dan Server; pastikan tiga diagram memenuhi ketentuan ini | Sebagian |
 | 3.7 | Langkah di activity diagram konsisten dengan alur di use case description | Perlu review akhir setelah seluruh deskripsi/diagram dilengkapi | Perlu ditinjau |
-| 3.8 | Setiap use case terhubung ke kebutuhan fungsional di matriks keterlacakan | Dokumen elisitasi, bagian 3.8; [usulan SRS v1.2](./SANTAP_SRS_V1_2_PROPOSED.md) | Siap |
-| 3.9 | Diagram dibuat dengan tools pemodelan, rapi, dan terbaca | Sumber PlantUML di [docs/models/](./docs/models/) | Siap; render final perlu diperiksa |
+| 3.8 | Setiap use case terhubung ke kebutuhan fungsional di matriks keterlacakan | Dokumen elisitasi, bagian 3.8; [usulan SRS v1.2](../docs/srs/SANTAP_SRS_V1_2_PROPOSED.md) | Siap |
+| 3.9 | Diagram dibuat dengan tools pemodelan, rapi, dan terbaca | Sumber PlantUML di [docs/models/](../docs/models/) | Siap; render final perlu diperiksa |
 
 ## Penilaian 4 — Pemodelan interaksi, struktur, data, dan UI
 
@@ -62,19 +62,19 @@ Dokumen ini menyalin butir penilaian dari gambar rubrik yang diberikan untuk SAN
 |---|---|---|---|
 | 4.1 | Minimal 3 sequence diagram untuk use case utama: lifeline, pesan, pesan balasan, dan fragmen alt/opt/loop jika perlu | [Meal sequence](../docs/models/SANTAP_V1_2_MEAL_SEQUENCE.puml), [queue sequence](../docs/models/SANTAP_V1_2_QUEUE_SEQUENCE.puml), dan [profile sequence](../docs/models/SANTAP_V1_2_PROFILE_SEQUENCE.puml) | Siap; render final perlu diperiksa |
 | 4.2 | Objek dan pesan di sequence diagram konsisten dengan kelas dan operasi di class diagram | Bergantung pada sequence dan class diagram | Belum siap |
-| 4.3 | Class diagram minimal 5 kelas lengkap dengan atribut (bertipe), operasi, dan visibility | Belum ada sumber class diagram di [docs/models/](./docs/models/) | Belum siap |
+| 4.3 | Class diagram minimal 5 kelas lengkap dengan atribut (bertipe), operasi, dan visibility | Belum ada sumber class diagram di [docs/models/](../docs/models/) | Belum siap |
 | 4.4 | Relasi antarkelas benar: asosiasi, multiplicity, agregasi/komposisi, generalisasi | Bergantung pada class diagram | Belum siap |
-| 4.5 | Model data (ERD atau skema database) minimal 5 entitas/tabel dengan PK, FK, dan kardinalitas | [SANTAP_V1_2_ERD.puml](./docs/models/SANTAP_V1_2_ERD.puml); cocokkan PK/FK eksplisit dengan [schema.sql](./server/schema.sql) | Sebagian |
+| 4.5 | Model data (ERD atau skema database) minimal 5 entitas/tabel dengan PK, FK, dan kardinalitas | [SANTAP_V1_2_ERD.puml](../docs/models/SANTAP_V1_2_ERD.puml); cocokkan PK/FK eksplisit dengan [schema.sql](../server/schema.sql) | Sebagian |
 | 4.6 | Model data konsisten dengan class diagram dan dilengkapi kamus data (nama kolom, tipe, keterangan) | Skema SQL tersedia, tetapi class diagram dan kamus data formal masih perlu dibuat | Belum siap |
-| 4.7 | Prototipe UI minimal 6 layar yang mencakup use case utama, dapat diklik (clickable) | Prototype React di [src/](./src/); buat daftar enam layar dan bukti klik untuk demo | Sebagian |
+| 4.7 | Prototipe UI minimal 6 layar yang mencakup use case utama, dapat diklik (clickable) | Prototype React di [src/](../src/); buat daftar enam layar dan bukti klik untuk demo | Sebagian |
 | 4.8 | UI menerapkan prinsip desain input/output: konsisten, validasi input, pesan kesalahan yang jelas | Implementasi React dan validasi API; lakukan review UI akhir | Sebagian |
-| 4.9 | Arsitektur sistem dan teknologi final ditetapkan; kerangka proyek dan database awal sudah ada di repository | Dokumen inisiasi, bagian 1.9; [src/](./src/), [server/](./server/), dan [schema.sql](./server/schema.sql) | Siap |
+| 4.9 | Arsitektur sistem dan teknologi final ditetapkan; kerangka proyek dan database awal sudah ada di repository | Dokumen inisiasi, bagian 1.9; [src/](../src/), [server/](../server/), dan [schema.sql](../server/schema.sql) | Siap |
 | 4.10 | Matriks keterlacakan diperbarui: kebutuhan → use case → diagram → kelas/tabel → layar | Matriks saat ini mencakup kebutuhan, use case, activity; perlu ditambah sequence, class, tabel, dan layar setelah artefaknya dibuat | Sebagian |
 
 ## Prioritas tindak lanjut Penilaian 4
 
 1. Buat tiga sequence diagram untuk proses pengambilan makanan, antrean, dan kelola profil/akun.
 2. Buat satu class diagram dengan minimal lima kelas dan cocokkan dengan operasi serta ERD.
-3. Buat kamus data dari [schema.sql](./server/schema.sql) dan verifikasi PK, FK, tipe, serta kardinalitas.
+3. Buat kamus data dari [schema.sql](../server/schema.sql) dan verifikasi PK, FK, tipe, serta kardinalitas.
 4. Dokumentasikan enam layar clickable beserta tautan kebutuhan dan use case pada matriks keterlacakan.
 5. Render seluruh PlantUML dan lakukan pemeriksaan keterbacaan sebelum dikumpulkan.

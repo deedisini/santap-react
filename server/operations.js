@@ -17,6 +17,7 @@ export async function firestoreOperation(db, identity, action, data, now) {
   if (action !== 'queue') requireRole(identity, ['Staff', 'Supervisor', 'Head', 'Admin']);
   if (action === 'queue' && identity.role === 'Mahasiswa' && data.nim !== identity.nim) throw fail(403, 'forbidden', 'NIM tidak sesuai profil.');
   if (action === 'cancel') {
+    if (typeof data.id !== 'string' || !/^[A-Za-z0-9_-]{1,160}$/.test(data.id)) throw fail(400, 'invalid_queue', 'ID antrean tidak valid.');
     const ref = db.collection('queues').doc(String(data.id));
     return db.runTransaction(async tx => {
       const queue = await tx.get(ref);
@@ -54,7 +55,8 @@ export async function firestoreOperation(db, identity, action, data, now) {
     assertServing(data.periodId, servedAt, config, period.data()?.pausedDate);
     if (action === 'queue') {
       if (waiting.length) throw fail(409, 'duplicate_queue', 'Mahasiswa sudah berada dalam antrean.');
-      const publicId = crypto.createHash('sha256').update(key).digest('hex');
+      // A hash of date/period/NIM is guessable by enumerating student numbers.
+      const publicId = crypto.randomUUID();
       tx.set(db.collection('queues').doc(key), { nim: data.nim, periodId: data.periodId, date: window.date, studentName: studentData.name, status: 'waiting', joinedAt: servedAt, publicId });
       tx.set(db.collection('publicQueue').doc(publicId), { periodId: data.periodId, date: window.date, status: 'waiting', joinedAt: servedAt });
       return { id: key, ok: true };

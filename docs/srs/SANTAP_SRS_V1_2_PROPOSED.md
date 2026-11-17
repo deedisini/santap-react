@@ -1,6 +1,8 @@
-# Proposed SANTAP SRS Version 1.2 Revision
+# Usulan revisi SRS SANTAP versi 1.2
 
-Status: proposed academic baseline, 12 November 2026. This is an addendum to [SRS v1.1](./SANTAP_SRS_V1_1%20(1).docx), not a replacement. Unchanged functional requirements, business rules, user stories and use cases retain their v1.1 identifiers. Formal stakeholder sign-off and production acceptance remain outstanding.
+> **Status arsip usulan.** Untuk kondisi implementasi dan hasil audit terbaru, baca [SRS final Bahasa Indonesia](SANTAP_SRS_FINAL.md), [laporan pengujian](../PENGUJIAN.md), dan [daftar perubahan](../DAFTAR_PERUBAHAN.md). ID historis dalam dokumen ini dipertahankan; jangan mencampurkannya dengan namespace FINAL.
+
+Status: proposed academic baseline, 12 November 2026. This is an addendum to [SRS v1.1](<./SANTAP_SRS_V1_1 (1).docx>), not a replacement. Unchanged functional requirements, business rules, user stories and use cases retain their v1.1 identifiers. Formal stakeholder sign-off and production acceptance remain outstanding.
 
 ## Ringkasan Bahasa Indonesia
 
@@ -21,7 +23,7 @@ This revision specifies official WITA serving hours, server-side enforcement, a 
 | Current elicitation supplement | Five roles, Admin, combined Staff/Supervisor access for Head, ratings and offline requirements. Its FR-01 through FR-18 form a separate namespace. |
 | Proposed v1.2 | Official schedule supplied by the project owner, push clarification, clock/warnings, optional Sabbath configuration and integrity corrections. Follow-up decision: default weekly Friday 18:00–Saturday 18:00 WITA replaces the earlier sunset-data prerequisite. |
 
-References below use **v1.1 IDs** unless prefixed `ELIS`. No historical requirement is renumbered. The [elicitation document](./ELISITASI_SRS_SANTAP.md) and [initiation document](./DOKUMEN_INISIASI_SANTAP.md) remain supporting artifacts. Existing approval placeholders do not establish formal approval.
+References below use **v1.1 IDs** unless prefixed `ELIS`. No historical requirement is renumbered. The [elicitation document](../../Penilaian/ELISITASI_SRS_SANTAP.md) and [initiation document](../../Penilaian/DOKUMEN_INISIASI_SANTAP.md) remain supporting artifacts. Existing approval placeholders do not establish formal approval.
 
 ## Business rule amendments
 
@@ -95,10 +97,10 @@ US-01 and US-03 retain their identity/queue meaning. Extend US-02: as Supervisor
 
 Proposed models are separate so historical diagrams and their different UC numbering remain available:
 
-- [Use case v1.2](./docs/models/SANTAP_V1_2_USE_CASE.puml) preserves v1.1 UC-01 through UC-08 and adds UC-09/10/11. QR, barcode and NIM remain alternate flows of UC-04.
-- [Meal activity v1.2](./docs/models/SANTAP_V1_2_MEAL_ACTIVITY.puml) adds server-time validation, atomic recording and pending-identification alternatives.
-- [Closing activity v1.2](./docs/models/SANTAP_V1_2_CLOSING_ACTIVITY.puml) adds the ten-minute trigger, role check, event deduplication and fallback.
-- [ERD extension v1.2](./docs/models/SANTAP_V1_2_ERD.puml) adds settings, same-day pause, anonymous queue projection, push subscriptions and delivery claims. Settings/push are Firestore documents, not additional MySQL tables.
+- [Use case v1.2](../models/SANTAP_V1_2_USE_CASE.puml) preserves v1.1 UC-01 through UC-08 and adds UC-09/10/11. QR, barcode and NIM remain alternate flows of UC-04.
+- [Meal activity v1.2](../models/SANTAP_V1_2_MEAL_ACTIVITY.puml) adds server-time validation, atomic recording and pending-identification alternatives.
+- [Closing activity v1.2](../models/SANTAP_V1_2_CLOSING_ACTIVITY.puml) adds the ten-minute trigger, role check, event deduplication and fallback.
+- [ERD extension v1.2](../models/SANTAP_V1_2_ERD.puml) adds settings, same-day pause, anonymous queue projection, push subscriptions and delivery claims. Settings/push are Firestore documents, not additional MySQL tables.
 
 Reminder becomes a derived temporal event with delivery claims, refining the earlier conceptual Reminder entity. No menu, payment, stock, procurement or kitchen ERP module is added.
 
@@ -110,4 +112,4 @@ Reminder becomes a derived temporal event with delivery claims, refining the ear
 4. Ratify Admin configuration responsibility, pause/resume semantics, late-offline reconciliation SOP and any eligibility exceptions.
 5. Complete live camera, push, database, responsive/theme, keyboard and campus-load acceptance. Browser automation was unavailable, so no click-through PASS is claimed.
 
-See [implementation and verification notes](./IMPLEMENTATION_V1_2.md).
+See [implementation and verification notes](../archive/IMPLEMENTATION_V1_2.md).

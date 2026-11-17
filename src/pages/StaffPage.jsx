@@ -1,7 +1,9 @@
 import { useMemo, useState } from "react";
-import { CheckCircle2, ClipboardCheck, Search, Users } from "lucide-react";
+import { CheckCircle2, ClipboardCheck, Info, Search, ShieldCheck, Users } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import QrScanner from "../components/QrScanner";
+import ServiceQr from "../components/ServiceQr";
+import { parseStudentIdentity } from '../../shared/serviceQr.js';
 
 export default function StaffPage({ students, queue, records, period, periodOpen, setPeriodOpen, onAddQueue, onRecord, onCompleteQueue, onCancelQueue }) {
   const [nim, setNim] = useState("");
@@ -26,14 +28,14 @@ export default function StaffPage({ students, queue, records, period, periodOpen
   }
   function handleScan(value) {
     try {
-      const parsed = JSON.parse(value);
-      if (parsed.type === "santap.student" && parsed.nim) setNim(parsed.nim);
-      else setNim(value.trim());
-    } catch { setNim(value.trim()); }
-    setScanning(false); setMethod("Scan QR"); setMessage({ type: "success", text: "Kode terbaca. Tekan Identifikasi untuk memeriksa data mahasiswa." });
+      setNim(parseStudentIdentity(value));
+      setMessage({ type: 'success', text: 'Kode terbaca. Periksa identitas mahasiswa sebelum mencatat.' });
+    } catch (error) { setNim(''); setMessage({ type: 'error', text: error.message }); }
+    setScanning(false); setMethod("Scan QR");
   }
   return <div className="staff-layout">
-    <section className="panel">
+    <ServiceQr />
+    <section className="panel identify-panel">
       <div className="panel-heading"><div><span className="eyebrow">PELAYANAN</span><h2>Identifikasi mahasiswa</h2><p>Gunakan salah satu metode identifikasi yang tersedia.</p></div><ClipboardCheck className="muted-icon" /></div>
       <form onSubmit={identify} className="identify-form">
         <label>Metode identifikasi</label>
@@ -41,7 +43,8 @@ export default function StaffPage({ students, queue, records, period, periodOpen
         {method !== "Manual NIM" && scanning && <QrScanner onScan={handleScan} onClose={() => setScanning(false)} />}
         <label htmlFor="nim">NIM / Nomor registrasi</label>
         <div className="input-row"><input id="nim" value={nim} onChange={e => {setNim(e.target.value); setMessage(null);}} placeholder="Contoh: 23101001" /><button className="button primary" type="submit"><Search size={16} /> Identifikasi</button></div>
-        <p className="helper-text">QR dan barcode dipindai langsung melalui kamera perangkat. Input NIM tetap tersedia sebagai metode cadangan.</p>
+        <p className="inline-hint"><Info size={14} /> <span>QR dan barcode dipindai melalui kamera. Input NIM tetap tersedia sebagai cadangan.</span></p>
+        <div className="verification-note"><ShieldCheck size={18} /><p><b>Verifikasi sebelum mencatat</b><span>Cocokkan nama dan NIM dengan kartu serta pemegangnya. Batas satu kali per periode mencegah duplikasi, bukan penyalahgunaan identitas.</span></p></div>
       </form>
       {message && <div className={`notice ${message.type === "success" ? "success-notice" : "error-notice"}`}>{message.text}</div>}
       {student && <div className="student-result">
@@ -58,6 +61,7 @@ export default function StaffPage({ students, queue, records, period, periodOpen
     </section>
     <section className="panel">
       <div className="panel-heading"><div><span className="eyebrow">DAFTAR LAYANAN</span><h2>Antrean berjalan</h2></div><span className="count-badge"><Users size={14} /> {waiting.length} menunggu</span></div>
+      <p className="helper-text">Periksa kartu mahasiswa dan pemegangnya sebelum menekan Selesaikan. Tindakan ini mencatat pengambilan dan menggunakan jatah periode tersebut.</p>
       {waiting.length ? <div className="queue-table">{waiting.map((item, index) => {
         const s = students.find(x => x.nim === item.nim);
         const joined = item.joinedAt?.toDate ? item.joinedAt.toDate().toLocaleTimeString('id-ID', { timeZone: 'Asia/Makassar', hour: '2-digit', minute: '2-digit' }) : item.joinedAt;

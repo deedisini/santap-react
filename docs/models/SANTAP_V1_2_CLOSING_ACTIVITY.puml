@@ -1,12 +1,15 @@
 @startuml
 title UC-07 Closing reminders v1.2
+|Sistem|
 start
 :Resolve approved Asia/Makassar schedule;
 if (Final 10 minutes and not paused?) then (yes)
   fork
+    |Supervisor atau Head|
     :Display in-app warning and closing time;
     :Pulse border every 2 seconds unless reduced motion;
   fork again
+    |Worker server|
     :Worker checks Supervisor/Head subscription role;
     if (Configured token and new delivery event?) then (yes)
       :Claim event once;
@@ -17,6 +20,7 @@ if (Final 10 minutes and not paused?) then (yes)
     endif
   end fork
 endif
+|Sistem|
 :At closing stop warning and reject retrievals;
 stop
 @enduml

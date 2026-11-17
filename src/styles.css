@@ -795,6 +795,11 @@ img {
   gap: 18px;
 }
 
+/* Pending scans follows the staff layout but is rendered as a sibling. */
+.staff-layout + .panel {
+  margin-top: 18px;
+}
+
 .student-grid .stack {
   gap: 18px;
 }
@@ -1021,6 +1026,18 @@ img {
   background: #fff;
 }
 
+.service-qr-panel .panel-heading { margin-bottom: 16px; }
+.service-qr-content { display: grid; grid-template-columns: minmax(200px, 240px) 1fr; align-items: stretch; gap: 20px; }
+.service-qr-code { display: grid; place-items: center; margin: 0; padding: 10px; background: var(--tone-f8fbf8, #f8fbf8); }
+.service-qr-details { display: flex; align-items: flex-start; flex-direction: column; justify-content: center; gap: 14px; min-width: 0; }
+.service-qr-details h3 { margin: 0 0 6px; color: var(--text-primary); font: 700 14px Manrope, sans-serif; }
+.service-qr-details > div p { margin: 0; color: var(--text-muted); font-size: 11px; line-height: 1.6; }
+.service-qr-note,
+.inline-hint { display: flex; align-items: flex-start; gap: 8px; margin: 0; color: var(--tone-718078, #718078); font-size: 10px; line-height: 1.6; }
+.service-qr-note svg,
+.inline-hint svg { flex: 0 0 auto; margin-top: 1px; color: var(--green-600); }
+.form-error { margin: 0; color: #a44b3f; font-size: 10px; }
+
 .receipt-panel {
   margin-top: 18px;
   padding-top: 17px;
@@ -1072,6 +1089,7 @@ img {
   color: var(--tone-89958d, #89958d);
   font-size: 10px;
   line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 
 .operational-info {
@@ -1194,7 +1212,7 @@ img {
 
 .identify-form {
   display: grid;
-  gap: 10px;
+  gap: 12px;
 }
 
 .identify-form label {
@@ -1204,16 +1222,19 @@ img {
 }
 
 .method-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 7px;
-  margin-bottom: 7px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 4px;
+  border-radius: 9px;
+  background: var(--tone-f2f5f2, #f2f5f2);
 }
 
 .method-tabs button {
   padding: 8px 12px;
 
-  border: 1px solid var(--border);
+  border: 1px solid transparent;
   border-radius: 7px;
   background: #fff;
 
@@ -1223,11 +1244,28 @@ img {
 }
 
 .method-tabs button.selected {
-  border-color: var(--tone-cfe1d3, #cfe1d3);
-  background: var(--tone-edf5ef, #edf5ef);
+  border-color: var(--border);
+  background: #fff;
   color: var(--green-700);
   font-weight: 800;
+  box-shadow: 0 1px 4px rgba(28, 59, 39, 0.06);
 }
+
+.verification-note { display: flex; align-items: flex-start; gap: 10px; padding: 12px; border: 1px solid var(--tone-dbe7dc, #dbe7dc); border-radius: 9px; background: var(--tone-f8fbf8, #f8fbf8); color: var(--green-700); }
+.verification-note > svg { flex: 0 0 auto; margin-top: 1px; }
+.verification-note p { margin: 0; }
+.verification-note b,
+.verification-note span { display: block; }
+.verification-note b { color: var(--tone-43584a, #43584a); font-size: 10px; }
+.verification-note span { margin-top: 4px; color: var(--tone-7a887e, #7a887e); font-size: 10px; line-height: 1.6; }
+
+/* The offline card is a direct child of the content area. */
+.content-area > .panel > h2 { margin: 0 0 10px; color: var(--text-primary); font: 700 17px Manrope, sans-serif; letter-spacing: -0.3px; }
+.content-area > .panel > h2 + p { max-width: 620px; margin: 0 0 18px; padding: 11px 13px; border-left: 3px solid var(--green-500); border-radius: 0 8px 8px 0; background: var(--tone-f8fbf8, #f8fbf8); color: var(--tone-647469, #647469); font-size: 11px; line-height: 1.65; }
+.content-area > .panel > .input-row { align-items: flex-end; flex-wrap: wrap; margin-bottom: 14px; }
+.content-area > .panel > .input-row label { display: grid; flex: 1 1 220px; gap: 7px; color: var(--tone-596b5e, #596b5e); font-size: 11px; font-weight: 700; }
+.content-area > .panel > .input-row .button { min-height: 39px; }
+.content-area > .panel > [role="status"] { min-height: 16px; margin: 10px 0 0; color: var(--text-muted); font-size: 10px; }
 
 .input-row {
   display: flex;
@@ -2788,6 +2826,9 @@ img {
 ========================================================= */
 
 @media (max-width: 520px) {
+  .service-qr-content { grid-template-columns: 1fr; }
+  .service-qr-code { width: 100%; }
+  .service-qr-details .button { width: 100%; }
   .topbar {
     align-items: flex-start;
     flex-direction: column;
@@ -2938,7 +2979,7 @@ img {
   }
 
   .method-tabs {
-    flex-wrap: wrap;
+    grid-template-columns: 1fr;
   }
 
   .placeholder-panel {
@@ -3102,3 +3143,11 @@ img {
 .email-report-form > .button { justify-self: start; }
 .email-report-panel { margin-top: 24px; }
 .email-report-preview pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+
+/* Pesan panjang dan kontrol tetap terbaca pada layar sempit. */
+.pending-row > span, .queue-person, .service-qr-details { min-width: 0; overflow-wrap: anywhere; }
+.input-row > label { min-width: 0; }
+button:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-visible {
+  outline: 3px solid var(--green-600, #365d89);
+  outline-offset: 3px;
+}

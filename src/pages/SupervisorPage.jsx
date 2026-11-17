@@ -49,8 +49,8 @@ export default function SupervisorPage({
   const nonResidents = periodRecords.length - residents;
 
   const waiting = useMemo(
-    () => queue.filter((item) => item.status === "waiting").length,
-    [queue]
+    () => queue.filter((item) => item.status === "waiting" && item.date === currentDate && item.periodId === periodId).length,
+    [queue, currentDate, periodId]
   );
 
   const recent = useMemo(
@@ -182,7 +182,7 @@ export default function SupervisorPage({
         <StatCard
           label="Antrean menunggu"
           value={waiting}
-          note="Seluruh antrean aktif"
+          note={`Periode ${period}, hari ini`}
           icon={Clock3}
           tone="purple"
         />

@@ -3,14 +3,22 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "overrides": {
+    "@grpc/grpc-js": "^1.14.7"
+  },
   "scripts": {
     "dev": "vite",
+    "demo": "vite --mode demo",
+    "check:docs": "node tools/check-doc-links.mjs",
     "build": "vite build",
     "preview": "vite preview",
     "email-server": "node --env-file=.env.local server/emailServer.js",
     "sql-server": "node --env-file=.env.local server/sqlServer.js",
     "bootstrap-admin": "node --env-file=.env.local server/bootstrapAdmin.js",
-    "test": "node --test server/*.test.js"
+    "test": "node --test --test-timeout=30000 server/*.test.js"
   },
   "dependencies": {
     "@vitejs/plugin-react": "latest",
@@ -19,10 +27,15 @@
     "firebase-admin": "^14.5.0",
     "lucide-react": "^1.66.0",
     "mysql2": "^3.24.6",
-    "nodemailer": "^7.0.11",
+    "nodemailer": "^10.6.0",
     "qrcode.react": "^4.2.0",
     "react": "latest",
     "react-dom": "latest",
     "vite": "latest"
+  },
+  "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2",
+    "@testing-library/react": "^16.3.3",
+    "jsdom": "^31.0.1"
   }
 }

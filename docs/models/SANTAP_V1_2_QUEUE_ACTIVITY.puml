@@ -1,0 +1,32 @@
+@startuml
+title UC-03 Masuk antrean
+|Mahasiswa|
+start
+:Login dan pilih periode;
+:Tekan Masuk antrean;
+|API SANTAP|
+:authenticate(request);
+if (Role dan NIM sesuai?) then (ya)
+  :Mulai transaksi;
+  :Baca konfigurasi, periode, mahasiswa,
+  catatan dan antrean hari ini;
+  if (Jadwal aktif, tidak dijeda,
+  profil lengkap, belum makan,
+  belum mengantre?) then (ya)
+    :Simpan antrean waiting;
+    :Firestore menyimpan publicQueue anonim;
+    :Commit dan kembalikan ID;
+    |Mahasiswa|
+    :Lihat status serta posisi antrean;
+  else (tidak)
+    |API SANTAP|
+    :Batalkan transaksi tanpa perubahan;
+    |Mahasiswa|
+    :Lihat alasan penolakan;
+  endif
+else (tidak)
+  |Mahasiswa|
+  :Lihat penolakan akses;
+endif
+stop
+@enduml
