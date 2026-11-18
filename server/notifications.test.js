@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import { readFile } from 'node:fs/promises';
-import { dispatchClosingPush, registerPush } from './push.js';
+import { dispatchAdminPush, dispatchClosingPush, registerPush } from './push.js';
 
 function database(role = 'Supervisor') {
   const values = new Map([['users/supervisor', { role }], ['pushSubscriptions/device', { uid: 'supervisor', token: 'valid-test-token-long-enough' }]]);
@@ -30,16 +30,31 @@ test('push worker claims each event once and respects Friday closing and role re
   assert.equal(sent.length, 1);
   const revoked = database('Mahasiswa');
   await dispatchClosingPush(revoked, messaging, new Date('2026-11-13T17:50:00+08:00'));
-  assert.equal(revoked.values.has('pushSubscriptions/device'), false);
+  assert.equal(revoked.values.has('pushSubscriptions/device'), true);
   assert.equal(sent.length, 1);
 });
-test('paused service suppresses push and unauthorized roles cannot subscribe', async () => {
+test('paused service suppresses push and every valid role can subscribe', async () => {
   const db = database();
   db.values.set('mealPeriods/evening', { pausedDate: '2026-11-13' });
   const sent = [];
   await dispatchClosingPush(db, { send: async payload => sent.push(payload) }, new Date('2026-11-13T17:50:00+08:00'));
   assert.equal(sent.length, 0);
-  await assert.rejects(registerPush(db, { role: 'Mahasiswa' }, { token: 'valid-test-token-long-enough' }), { status: 403 });
+  await registerPush(db, { role: 'Mahasiswa', uid: 'student' }, { token: 'student-test-token-long-enough' });
+  assert.ok([...db.values.values()].some(value => value?.uid === 'student'));
+});
+test('admin broadcast sends to every registered role and removes stale profiles', async () => {
+  const db = database();
+  db.values.set('users/student', { role: 'Mahasiswa' });
+  db.values.set('pushSubscriptions/student-device', { uid: 'student', token: 'student-token-long-enough' });
+  db.values.set('pushSubscriptions/stale-device', { uid: 'missing', token: 'stale-token-long-enough' });
+  const sent = [];
+  const result = await dispatchAdminPush(db, { send: async payload => sent.push(payload) }, new Date('2026-11-18T12:00:00+08:00'));
+  assert.equal(result.targeted, 2);
+  assert.equal(result.sent, 2);
+  assert.equal(result.failed, 0);
+  assert.equal(result.removed, 1);
+  assert.equal(sent[0].data.title, 'SANTAP: Uji notifikasi admin');
+  assert.equal(db.values.has('pushSubscriptions/stale-device'), false);
 });
 test('service worker deduplicates simultaneous local and remote events persistently', async () => {
   const events = {}, records = new Map(), shown = [];

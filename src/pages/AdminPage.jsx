@@ -10,6 +10,8 @@ export default function AdminPage({ user, demoMode, onDemoRoleChange }) {
   const [status, setStatus] = useState(null);
   const [pendingInvite, setPendingInvite] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [pushBusy, setPushBusy] = useState(false);
+  const [pushStatus, setPushStatus] = useState(null);
   const busy = useRef(false);
   const isStudent = form.role === "Mahasiswa";
   const identifier = isStudent ? form.nim : form.nip;
@@ -83,7 +85,32 @@ export default function AdminPage({ user, demoMode, onDemoRoleChange }) {
     }
   }
 
+  async function sendForcedPush() {
+    if (pushBusy) return;
+    if (demoMode) {
+      setPushStatus({ type: "info", message: "Mode demo: notifikasi paksa tidak dikirim ke perangkat nyata." });
+      return;
+    }
+    if (!window.confirm("Kirim notifikasi paksa ke semua perangkat yang terdaftar?")) return;
+    setPushBusy(true);
+    setPushStatus(null);
+    try {
+      const result = await serviceRequest("/api/admin/push/test", {}, user);
+      setPushStatus({ type: result.failed ? "error" : "success", message: `Notifikasi dikirim ke ${result.sent} dari ${result.targeted} perangkat${result.failed ? `; ${result.failed} gagal` : ""}.` });
+    } catch (error) {
+      setPushStatus({ type: "error", message: error.message || "Notifikasi paksa gagal dikirim." });
+    } finally {
+      setPushBusy(false);
+    }
+  }
+
   return <div className="stack">
+    <section className="panel admin-panel">
+      <div className="panel-heading"><div><span className="eyebrow">UJI NOTIFIKASI</span><h2>Siaran paksa administrator</h2><p>Kirim satu notifikasi push ke semua perangkat yang sudah mengaktifkan notifikasi SANTAP.</p></div></div>
+      <p className="notice warning-notice">Gunakan hanya untuk pengujian. Pesan ini memang akan muncul kepada semua perangkat terdaftar.</p>
+      <button className="button secondary" type="button" onClick={sendForcedPush} disabled={pushBusy}>{pushBusy ? "Mengirim notifikasi..." : "Kirim notifikasi paksa"}</button>
+      <div role="status" aria-live="polite">{pushStatus && <p className={`notice ${pushStatus.type === "error" ? "error-notice" : pushStatus.type === "success" ? "success-notice" : ""}`}>{pushStatus.message}</p>}</div>
+    </section>
     <section className="panel admin-panel">
       <div className="panel-heading"><div><span className="eyebrow">ADMINISTRATOR</span><h2>Buat akun pengguna</h2><p>Buat akun beserta profil pengguna. Undangan untuk mengatur kata sandi akan dikirim melalui email.</p></div></div>
       {demoMode && <p className="notice">Mode demo: formulir hanya pratinjau. Tidak ada akun, perubahan data, atau email yang dikirim.</p>}

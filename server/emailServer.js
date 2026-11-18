@@ -7,7 +7,8 @@ import { createAccount } from './accounts.js';
 import { firestoreOperation, readOperations } from './operations.js';
 import { validateOperations } from '../shared/operations.js';
 import { updateStudentProfile } from './profiles.js';
-import { registerPush, startPushWorker } from './push.js';
+import { dispatchAdminPush, registerPush, startPushWorker } from './push.js';
+import { getMessaging } from 'firebase-admin/messaging';
 
 export function createHandler(deps = {}) {
   return async (request, response) => {
@@ -37,6 +38,11 @@ export function createHandler(deps = {}) {
         return json(response, 200, { ok: true });
       }
       if (path === '/api/push/register') return json(response, 200, await registerPush(services.db, identity, await body(request)));
+      if (path === '/api/admin/push/test') {
+        requireRole(identity, ['Admin']);
+        if (Object.keys(await body(request)).length) throw fail(400, 'invalid_request', 'Permintaan pengujian notifikasi tidak boleh berisi data.');
+        return json(response, 200, await dispatchAdminPush(services.db, deps.messaging || getMessaging(), new Date()));
+      }
       if (path.startsWith('/api/operations/')) return json(response, 200, await firestoreOperation(services.db, identity, path.split('/').pop(), await body(request)));
       if (path === '/api/admin/users') {
         requireRole(identity, ['Admin']);
